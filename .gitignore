@@ -45,3 +45,4 @@ unpackage/dist/dev/
 /common
 my-blog.db
 /logs
+/SQLite
