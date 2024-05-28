@@ -1,0 +1,16 @@
+### 用户登录接口
+POST http://127.0.0.1:800/login
+Content-Type: application/json
+
+{
+  "username": "yang",
+  "password": "doe"
+}
+### 用户注册接口
+POST http://127.0.0.1:800/register
+Content-Type: application/json
+
+{
+  "username": "yang",
+  "password": "doe"
+}

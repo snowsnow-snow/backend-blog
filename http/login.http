@@ -1,0 +1,77 @@
+# curl 'http://localhost:800/api/list2'
+#  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+#  -H 'Accept-Language: zh-CN,zh;q=0.9'
+#  -H 'Cache-Control: max-age=0'
+#  -H 'Connection: keep-alive'
+#  -H 'Cookie: Goland-616b661e=0af15a3a-5edc-4108-8927-1910c7dc7842; Webstorm-b1618961=95df17e5-ec11-4f44-bda7-e620734963bf; rememberMe=true; username=13633566713; password=fsgcZKVkmJXEdcP6IlJWcAw4GuMchjzWUtmL4VYCvicF01zZKaeFb+LR/3nHMuWna8qVNJf4MWmxJBFNg3WqMQ==; Admin-Token=eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjUyYjkyODNjLWIyMDgtNDZiMS04OWEwLWZmMWVkMGI1Y2ZiOCIsInVzZXJuYW1lIjoiMTM2MzM1NjY3MTMifQ.uV6ZlHpYeWjoBoLU3a2micwpbVmGZDjw1fDIOXLb8DwdgCUEQC7vlEfdgCDMran5GhqRgJDSMs9sINKdhteceg; Admin-Expires-In=720'
+#  -H 'Sec-Fetch-Dest: document'
+#  -H 'Sec-Fetch-Mode: navigate'
+#  -H 'Sec-Fetch-Site: none'
+#  -H 'Sec-Fetch-User: ?1'
+#  -H 'Upgrade-Insecure-Requests: 1'
+#  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+#  -H 'sec-ch-ua: "Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"'
+#  -H 'sec-ch-ua-mobile: ?0'
+#  -H 'sec-ch-ua-platform: "macOS"'
+#  --compressed
+GET http://localhost:800/api/list2
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: max-age=0
+Connection: keep-alive
+Cookie: Goland-616b661e=0af15a3a-5edc-4108-8927-1910c7dc7842; Webstorm-b1618961=95df17e5-ec11-4f44-bda7-e620734963bf; rememberMe=true; username=13633566713; password=fsgcZKVkmJXEdcP6IlJWcAw4GuMchjzWUtmL4VYCvicF01zZKaeFb+LR/3nHMuWna8qVNJf4MWmxJBFNg3WqMQ==; Admin-Token=eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjUyYjkyODNjLWIyMDgtNDZiMS04OWEwLWZmMWVkMGI1Y2ZiOCIsInVzZXJuYW1lIjoiMTM2MzM1NjY3MTMifQ.uV6ZlHpYeWjoBoLU3a2micwpbVmGZDjw1fDIOXLb8DwdgCUEQC7vlEfdgCDMran5GhqRgJDSMs9sINKdhteceg; Admin-Expires-In=720
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+sec-ch-ua: "Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+
+###
+GET http://localhost:800/api/restricted
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: max-age=0
+Connection: keep-alive
+Cookie: Goland-616b661e=0af15a3a-5edc-4108-8927-1910c7dc7842; Webstorm-b1618961=95df17e5-ec11-4f44-bda7-e620734963bf; rememberMe=true; username=13633566713; password=fsgcZKVkmJXEdcP6IlJWcAw4GuMchjzWUtmL4VYCvicF01zZKaeFb+LR/3nHMuWna8qVNJf4MWmxJBFNg3WqMQ==; Admin-Token=eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjUyYjkyODNjLWIyMDgtNDZiMS04OWEwLWZmMWVkMGI1Y2ZiOCIsInVzZXJuYW1lIjoiMTM2MzM1NjY3MTMifQ.uV6ZlHpYeWjoBoLU3a2micwpbVmGZDjw1fDIOXLb8DwdgCUEQC7vlEfdgCDMran5GhqRgJDSMs9sINKdhteceg; Admin-Expires-In=720
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+sec-ch-ua: "Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+###
+GET http://localhost:800/
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: max-age=0
+Connection: keep-alive
+Cookie: Goland-616b661e=0af15a3a-5edc-4108-8927-1910c7dc7842; Webstorm-b1618961=95df17e5-ec11-4f44-bda7-e620734963bf; rememberMe=true; username=13633566713; password=fsgcZKVkmJXEdcP6IlJWcAw4GuMchjzWUtmL4VYCvicF01zZKaeFb+LR/3nHMuWna8qVNJf4MWmxJBFNg3WqMQ==; Admin-Token=eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjUyYjkyODNjLWIyMDgtNDZiMS04OWEwLWZmMWVkMGI1Y2ZiOCIsInVzZXJuYW1lIjoiMTM2MzM1NjY3MTMifQ.uV6ZlHpYeWjoBoLU3a2micwpbVmGZDjw1fDIOXLb8DwdgCUEQC7vlEfdgCDMran5GhqRgJDSMs9sINKdhteceg; Admin-Expires-In=720
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+sec-ch-ua: "Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+
+
+
+### 用户登录接口
+POST http://127.0.0.1:800/login
+Content-Type: application/json
+
+{
+  "username": "john",
+  "password": "doe"
+}
+
+

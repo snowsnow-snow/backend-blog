@@ -1,0 +1,47 @@
+.DS_Store
+node_modules
+/ui
+/common
+
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# Mac
+.DS_Store
+**/.DS_Store
+
+# vim/vi
+*.swp
+
+# JavaScript
+node_modules/
+.node_modules/
+package-lock.json
+.eslintcache
+unpackage/dist/build/
+unpackage/dist/dev/
+
+# python
+*.pyc
+
+#vue.config.js
+/common
+my-blog.db
+/logs
