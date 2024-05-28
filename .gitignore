@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 /ui
-/common
 
 
 
@@ -42,7 +41,6 @@ unpackage/dist/dev/
 *.pyc
 
 #vue.config.js
-/common
 my-blog.db
 /logs
 /SQLite
