@@ -60,7 +60,7 @@ func (r contentService) Remove(c *fiber.Ctx) error {
 func (r contentService) Update(c *fiber.Ctx) (*models.ContentInfo, error) {
 	var content models.ContentInfo
 	err := c.BodyParser(&content)
-	common.UpdateInit(&content.BaseInfo)
+	common.UpdateInit(c, &content.BaseInfo)
 	if err != nil {
 		logger.Error.Println("param parse content err", err)
 		return nil, result.WrongParameter
@@ -203,7 +203,18 @@ func (r contentService) GetContent(c *fiber.Ctx) (*models.ContentInfo, error) {
 	contentId := c.Query("id")
 	content, err := models.SelectContentById(contentId, db)
 	if err != nil {
-		logger.Error.Println("Select img info by id err", err)
+		logger.Error.Println("Select content info by id err", err)
+		return nil, selectContentErr
+	}
+	return content, nil
+}
+
+func (r contentService) GetPublicContent(c *fiber.Ctx) (*models.PublicContentInfo, error) {
+	db := util.DB
+	contentId := c.Query("id")
+	content, err := models.SelectPublicContentById(contentId, db)
+	if err != nil {
+		logger.Error.Println("Select content info by id err", err)
 		return nil, selectContentErr
 	}
 	return content, nil

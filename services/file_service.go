@@ -1,6 +1,7 @@
 package services
 
 import (
+	"backend-blog/common"
 	"backend-blog/dto"
 	"backend-blog/logger"
 	"backend-blog/models"
@@ -50,7 +51,7 @@ func (r fileService) SaveFile(c *fiber.Ctx) ([]*models.SaveFileInfo, []*models.S
 	var videoInfos []*models.SaveFileInfo
 	var imageInfos []*models.SaveFileInfo
 	if len(videos) > 0 {
-		go func() {
+		err := util.RunWithRecover(c, func() error {
 			defer wg.Done()
 			for i := range videos {
 				videoInfo := videos[i]
@@ -59,28 +60,41 @@ func (r fileService) SaveFile(c *fiber.Ctx) ([]*models.SaveFileInfo, []*models.S
 					logger.Error.Println(err)
 					continue
 				}
+				common.CreateInit(c, &video.BaseInfo)
 				videoInfos = append(videoInfos, &models.SaveFileInfo{
 					FileInfo:  *videoInfo,
 					VideoInfo: *video,
 				})
 			}
-		}()
+			return nil
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+
 	}
 	if len(images) > 0 {
-		go func() {
+		//var exiftool util.GoExif
+		var exiftool util.Exiftool
+		err := util.RunWithRecover(c, func() error {
 			defer wg.Done()
 			for i := range images {
 				imgInfo := images[i]
-				img := util.ReadExif(imgInfo.FilePath, imgInfo.FileName, imgInfo.Type)
+				img := exiftool.ReadExif(imgInfo.FilePath, imgInfo.FileName, imgInfo.Type)
 				if img == nil {
 					img = &models.ImgInfo{}
 				}
+				common.CreateInit(c, &img.BaseInfo)
 				imageInfos = append(imageInfos, &models.SaveFileInfo{
 					FileInfo: *imgInfo,
 					ImgInfo:  *img,
 				})
 			}
-		}()
+			return nil
+		})
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 	wg.Wait()
 	return videoInfos, imageInfos, nil

@@ -33,6 +33,7 @@ func BuildRouter(app *fiber.App) {
 		}
 		content := public.Group("/content")
 		{
+			content.Get("/", contentController.PublicById)
 			content.Get("/list", contentController.PublicList)
 		}
 		resource := public.Group("/resource")
@@ -42,6 +43,7 @@ func BuildRouter(app *fiber.App) {
 	}
 	app.Use(util.JWTMiddleware)
 	api := app.Group("/api", util.TokenAuth())
+	//api := app.Group("/api")
 	api.Post("/resetPassword", userController.ResetPassword)
 	{
 		content := api.Group("/content")

@@ -16,6 +16,17 @@ type ContentInfo struct {
 	Tag             int    `form:"tag" json:"tag"`                         // 标签
 	TheCover        string `form:"theCover" json:"theCover"`               // 封面
 }
+type PublicContentInfo struct {
+	ID              string   `form:"id" json:"id"`                           // ID
+	Title           string   `form:"title" json:"title"`                     // 标题
+	Text            string   `form:"text" json:"text"`                       // 文本
+	PublishLocation string   `form:"publishLocation" json:"publishLocation"` // 发布位置
+	State           int      `form:"state" json:"state"`                     // 1-发布，2-草稿，3-隐藏
+	Type            int      `form:"type" json:"type"`                       // 内容类型：1-文字，2-Markdown，3-图片，4-视频，5-图片和视频
+	Tag             int      `form:"tag" json:"tag"`                         // 标签
+	TheCover        string   `form:"theCover" json:"theCover"`               // 封面
+	CreatedTime     DateTime `json:"createdTime"`
+}
 
 func CreateContent(content ContentInfo, c *fiber.Ctx) error {
 	transactionDB := c.Locals(constant.Local.TransactionDB).(*gorm.DB)
@@ -52,6 +63,14 @@ func ListContent(db *gorm.DB) (*[]ContentInfo, error) {
 }
 func SelectContentById(id string, db *gorm.DB) (*ContentInfo, error) {
 	var contentInfo ContentInfo
+	err := db.Table(constant.Table.ContentInfo).Where("id = ?", id).Scan(&contentInfo).Error
+	if err != nil {
+		return nil, err
+	}
+	return &contentInfo, nil
+}
+func SelectPublicContentById(id string, db *gorm.DB) (*PublicContentInfo, error) {
+	var contentInfo PublicContentInfo
 	err := db.Table(constant.Table.ContentInfo).Where("id = ?", id).Scan(&contentInfo).Error
 	if err != nil {
 		return nil, err

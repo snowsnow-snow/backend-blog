@@ -54,12 +54,20 @@ func (r contentController) PublicList(c *fiber.Ctx) error {
 	return result.SuccessData(c, list)
 }
 
-func (r contentController) GetContent(c *fiber.Ctx) error {
-	publicContentInfo, err := services.ContentService.GetContent(c)
+func (r contentController) PublicById(c *fiber.Ctx) error {
+	list, err := services.ContentService.PublicList(c)
 	if err != nil {
 		return result.ErrorWithMsg(c, err.Error())
 	}
-	return result.SuccessData(c, publicContentInfo)
+	return result.SuccessData(c, list)
+}
+
+func (r contentController) GetContent(c *fiber.Ctx) error {
+	contentInfo, err := services.ContentService.GetContent(c)
+	if err != nil {
+		return result.ErrorWithMsg(c, err.Error())
+	}
+	return result.SuccessData(c, contentInfo)
 }
 
 func (r contentController) GetTheCoverContent(c *fiber.Ctx) error {

@@ -110,13 +110,14 @@ func (r userService) CreateToken(username string) (string, error) {
 	// 声明 Claims
 	claims := jwt.MapClaims{
 		"username": username,
+		"s":        "ss",
 		"admin":    true,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 	// Create token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString(util.JwtKey)
+	t, err := token.SignedString(util.PrivateKey)
 	return t, err
 }
 

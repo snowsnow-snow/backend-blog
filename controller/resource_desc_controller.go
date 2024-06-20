@@ -33,7 +33,7 @@ func (r resourceDescController) Add(c *fiber.Ctx) error {
 	err := services.ResourceDescService.Add(c)
 	if err != nil {
 		logger.Error.Println("add resource desc error", err)
-		return result.ErrorWithMsg(c, err.Error())
+		return result.ErrorWithMsg(c, result.WrongParameter.Error())
 	}
 	return result.Success(c)
 }

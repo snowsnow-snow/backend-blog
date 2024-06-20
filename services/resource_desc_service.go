@@ -33,7 +33,7 @@ func (r resourceDescService) Add(c *fiber.Ctx) error {
 	common.CreateInit(c, &rd.BaseInfo)
 	videoInfos, imgInfos, err := FileService.SaveFile(c)
 	if err != nil {
-		logger.Error.Println("Save file", err)
+		logger.Error.Println("save file", err)
 		return err
 	}
 	if len(videoInfos) > 0 {
@@ -153,20 +153,13 @@ func getDeleteIds(list []models.ResourceDesc) ([]interface{}, []interface{}, []i
 	}
 	return resIds, videoIds, imgIds
 }
-func getImgIdByResourceDescList(list []models.ResourceDesc) []interface{} {
-	var arr []interface{}
-	for _, desc := range list {
-		arr = append(arr, desc.ID)
-	}
-	return arr
-}
+
 func getIds(ids string) []interface{} {
 	var arr []interface{}
 	split := strings.Split(ids, ",")
 	for _, id := range split {
 		arr = append(arr, id)
 	}
-	//var s []interface{} = strings.Split(ids, ",")
 	return arr
 }
 
@@ -209,7 +202,7 @@ func (r resourceDescService) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return result.WrongParameter
 	}
-	common.UpdateInit(&rd.BaseInfo)
+	common.UpdateInit(c, &rd.BaseInfo)
 	if err = deleteResourceDescFile(rd.ID, rd.ResourceType, c); err != nil {
 		return err
 	}
@@ -256,5 +249,31 @@ func (r resourceDescService) PublicList(c *fiber.Ctx) ([]*dto.PublicResourcesDes
 		logger.Error.Println("select resource desc list err", err)
 		return nil, selectContentErr
 	}
+	if len(listResourceDesc) > 0 {
+		formatFilmParams(listResourceDesc)
+	}
 	return listResourceDesc, nil
+}
+
+func formatFilmParams(list []*dto.PublicResourcesDescImg) {
+	for _, item := range list {
+		setFilmMode(item)
+	}
+}
+
+func setFilmMode(img *dto.PublicResourcesDescImg) {
+	//img.FilmModeFormat = util.GetChineseFilmMode(img.FilmMode)
+	img.FilmModeFormat = img.FilmMode
+	img.DynamicRangeFormat = util.GetChineseDynamicRange(img.DynamicRange)
+	img.WhiteBalanceFormat = util.GetChineseWhiteBalance(img.DynamicRange)
+	img.WhiteBalanceFineTuneFormat = util.GetWhiteBalanceFineTuneFormat(img.WhiteBalanceFineTune)
+	img.SharpnessFormat = util.GetChineseGenericDescriptionMap(img.Sharpness)
+	img.GrainEffectRoughnessFormat = util.GetChineseGenericDescriptionMap(img.GrainEffectRoughness)
+	img.ColorChromeEffectFormat = util.GetChineseGenericDescriptionMap(img.ColorChromeEffect)
+	img.ShadowToneFormat = util.GetNumeric(img.ShadowTone)
+	img.HighlightToneFormat = util.GetNumeric(img.HighlightTone)
+	img.SaturationFormat = util.GetNumericAndCharParam(img.Saturation)
+	img.NoiseReductionFormat = util.GetNumeric(img.NoiseReduction)
+	img.ColorChromeFXBlueFormat = util.GetChineseGenericDescriptionMap(img.ColorChromeFXBlue)
+
 }

@@ -7,7 +7,7 @@ import (
 var (
 	// VerifyExpUsername 要求用户名只包含字母、数字、下划线和连字符，且长度在3到20个字符之间
 	VerifyExpUsername = `^[a-zA-Z0-9_-]{5,15}$`
-	// VerifyExpPassword 要求密码密码长度大于8个字符，由大写字母、小写字母、数字、符号中的3种及3种以上组成
+	// VerifyExpPassword 要求密码长度大于8个字符，由大写字母、小写字母、数字、符号中的3种及3种以上组成
 	VerifyExpPassword = `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@._$!%*?&]{9,}$`
 )
 

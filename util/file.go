@@ -87,48 +87,81 @@ func SaveFile(c *fiber.Ctx, file *multipart.FileHeader) (*models.FileInfo, error
 	err = c.SaveFile(file, filePathAndName)
 	return fileInfo, err
 }
+func RotatePicture(rotate bool, paths ...string) error {
+	if !rotate {
+		return nil
+	}
+	for _, path := range paths {
+		err := RotatePicture90(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//func RotatePicture90(path string) error {
+//	// 打开图像文件
+//	f, err := os.Open(path)
+//	if err != nil {
+//		return err
+//	}
+//	defer func(f *os.File) {
+//		err := f.Close()
+//		if err != nil {
+//			logger.Error.Println("Rotate picture close file error", err)
+//		}
+//	}(f)
+//	// 读取图像文件
+//	img, err := imaging.Decode(f)
+//	if err != nil {
+//		logger.Error.Println("Rotate picture read image file error", err)
+//		return err
+//	}
+//	// 旋转图像（顺时针90度）
+//	img = imaging.Rotate90(img)
+//	//// 保存旋转后的图像到新文件
+//	//out, err := os.Create(path)
+//	//if err != nil {
+//	//	return err
+//	//}
+//	//defer func(out *os.File) {
+//	//	err := out.Close()
+//	//	if err != nil {
+//	//		logger.Error.Println("Rotate picture close file error", err)
+//	//	}
+//	//}(out)
+//	return nil
+//}
 func RotatePicture90(path string) error {
 	// 打开图像文件
-	f, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			logger.Error.Println("Rotate picture close file error", err)
-		}
-	}(f)
-	// 读取图像文件
-	img, err := imaging.Decode(f)
-	if err != nil {
-		logger.Error.Println("Rotate picture read image file error", err)
-	}
+	img, err := imaging.Open(path)
 	// 旋转图像（顺时针90度）
 	img = imaging.Rotate90(img)
-	// 保存旋转后的图像到新文件
-	out, err := os.Create(path)
+	err = imaging.Save(img, path)
 	if err != nil {
+		logger.Error.Println("rotate picture read image file error", err)
 		return err
 	}
-	defer func(out *os.File) {
-		err := out.Close()
-		if err != nil {
-			logger.Error.Println("Rotate picture close file error", err)
-		}
-	}(out)
-	return jpeg.Encode(out, img, nil)
+	return nil
 }
-func Compress(path string, fileName string, fileType string, orientation int, currFile *os.File) error {
+func Compress(path string, fileName string, fileType string, currFile *os.File) ([]string, error) {
 	_, err := currFile.Seek(0, 0)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	img, _, err := image.Decode(currFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
+	compressPaths := make([]string, len(CompressionRatio))
+	var file *os.File
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			logger.Error.Println("Rotate picture close file error", err)
+		}
+	}(file)
 	for i := range CompressionRatio {
 		var opt jpeg.Options
 		opt.Quality = 1
@@ -137,24 +170,19 @@ func Compress(path string, fileName string, fileType string, orientation int, cu
 		compressName := fileName + Delimiter + strconv.Itoa(CompressionRatio[i]) + Point + fileType
 		outputFile, err := os.Create(path + Separator + compressName)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = jpeg.Encode(outputFile, img, options)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = outputFile.Close()
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if orientation == 8 {
-			err = RotatePicture90(path + Separator + compressName)
-			if err != nil {
-				return err
-			}
-		}
+		compressPaths[i] = path + Separator + compressName
 	}
-	return nil
+	return compressPaths, nil
 }
 
 func DeleteFile(path string) error {

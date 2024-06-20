@@ -41,17 +41,17 @@ func setFrameRate() {
 func setBrand(probeData *ffprobe.ProbeData, videoInfo *models.VideoInfo) {
 	for tag := range probeData.Format.TagList {
 		getString, _ := probeData.Format.TagList.GetString(tag)
-		if getString != "" {
-			for index := range makes {
-				if strings.Contains(getString, makes[index]) {
-					handle := getHandleByBrand(makes[index])
-					if handle != nil {
-						handle.SetVideoInfo(probeData, videoInfo)
-					}
+		if getString == "" {
+			return
+		}
+		for index := range makes {
+			if strings.Contains(getString, makes[index]) {
+				handle := getHandleByBrand(makes[index])
+				if handle != nil {
+					handle.SetVideoInfo(probeData, videoInfo)
 				}
 			}
 		}
-
 	}
 }
 func getHandleByBrand(brand string) VideoInfoHandle {

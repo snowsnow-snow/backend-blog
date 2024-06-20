@@ -30,7 +30,10 @@ func (r fileController) ViewImage(c *fiber.Ctx) error {
 	if compressionRatioMap[compressionRatio] == "" {
 		return result.FailWithMsg(c, result.WrongParameter.Error())
 	}
-	path, _ := services.FileService.ByIdCompressionRatioGetImgPath(c.Params("imageId"), compressionRatio)
+	path, err := services.FileService.ByIdCompressionRatioGetImgPath(c.Params("imageId"), compressionRatio)
+	if err != nil {
+		return result.Error(c)
+	}
 	return c.SendFile(path)
 }
 func (r fileController) ViewVideo(c *fiber.Ctx) error {

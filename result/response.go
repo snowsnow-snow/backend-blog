@@ -18,12 +18,14 @@ type Result struct {
 }
 
 const (
-	successCode = 0
-	successMsg  = "ok"
-	failCode    = 100
-	failMsg     = "fail"
-	errorCode   = 500
-	errorMsg    = "error"
+	successCode          = 0
+	successMsg           = "ok"
+	failCode             = 100
+	failMsg              = "fail"
+	errorCode            = 500
+	errorMsg             = "error"
+	SignatureInvalidCode = 401
+	SignatureInvalidMsg  = "Signature invalid"
 )
 
 func successCommit(c *fiber.Ctx) {
@@ -112,6 +114,13 @@ func ErrorResult(c *fiber.Ctx, result *Result) error {
 	}
 	return NewResult(c, &Response{
 		Status: fiber.StatusInternalServerError,
+		Result: result,
+	})
+}
+
+func SignatureInvalidResult(c *fiber.Ctx, result *Result) error {
+	return NewResult(c, &Response{
+		Status: fiber.StatusUnauthorized,
 		Result: result,
 	})
 }

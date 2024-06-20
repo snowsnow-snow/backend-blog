@@ -8,23 +8,40 @@ import (
 
 type ImgInfo struct {
 	BaseInfo
-	Model               string `gorm:"column:model;comment:'型号'" json:"model"` // 型号
-	Make                string `json:"make"`                                   // 品牌
-	Software            string `json:"software"`                               // 软件版本
-	LensModel           string `json:"lensModel"`                              // 镜头型号
-	ApertureValue       string `json:"apertureValue"`                          // 镜头光圈
-	DateTimeOriginal    string `json:"dateTimeOriginal"`                       // 日期和时间
-	ExposureTime        string `json:"exposureTime"`                           // 曝光时间
-	FNumber             string `json:"FNumber"`                                // 光圈数
-	PixelXDimension     int    `json:"pixelXDimension"`                        // 图像的有效宽度
-	PixelYDimension     int    `json:"pixelYDimension"`                        // 图像的有效高度
-	LongitudeCoordinate string `json:"longitudeCoordinate"`                    // 经度坐标
-	LatitudeCoordinate  string `json:"latitudeCoordinate"`                     // 纬度坐标
-	ShutterSpeedValue   string `json:"shutterSpeedValue"`                      // 快门速度
-	FocalLength         string `json:"focalLength"`                            // 焦距
-	ExposureProgram     string `json:"exposureProgram"`                        // 曝光程序
-	ExposureProgramZhCN string `json:"exposureProgramZhCN"`                    // 曝光程序中文
-	ISO                 int64  `json:"ISO"`                                    // ISO
+	Model                   string  `gorm:"column:model;comment:'型号'" json:"model"`                                         // 型号
+	Make                    string  `gorm:"column:make;comment:'品牌'" json:"make"`                                           // 品牌
+	Software                string  `gorm:"column:software;comment:'软件版本'" json:"software"`                                 // 软件版本
+	LensMake                string  `gorm:"column:lens_make;comment:'镜头品牌'" json:"lensMake"`                                // 镜头品牌
+	LensInfo                string  `gorm:"column:lens_info;comment:'镜头型号'" json:"lensInfo"`                                // 镜头型号
+	ApertureValue           float64 `gorm:"column:aperture_value;comment:'镜头光圈'" json:"apertureValue"`                      // 镜头光圈
+	DateTimeOriginal        string  `gorm:"column:date_time_original;comment:'日期和时间'" json:"dateTimeOriginal"`              // 日期和时间
+	ExposureTime            string  `gorm:"column:exposure_time;comment:'曝光时间'" json:"exposureTime"`                        // 曝光时间
+	FNumber                 float64 `gorm:"column:fn_umber;comment:'光圈数'" json:"FNumber"`                                   // 光圈
+	ImageWidth              int     `gorm:"column:image_width;comment:'图像的有效宽度'" json:"imageWidth"`                         // 图像的有效宽度
+	ImageHeight             int     `gorm:"column:image_height;comment:'图像的有效高度'" json:"imageHeight"`                       // 图像的有效高度
+	LongitudeCoordinate     string  `gorm:"column:longitude_coordinate;comment:'经度坐标'" json:"longitudeCoordinate"`          // 经度坐标
+	LatitudeCoordinate      string  `gorm:"column:latitude_coordinate;comment:'纬度坐标'" json:"latitudeCoordinate"`            // 纬度坐标
+	ShutterSpeedValue       string  `gorm:"column:shutter_speed_value;comment:'快门速度'" json:"shutterSpeedValue"`             // 快门速度
+	FocalLength             string  `gorm:"column:focal_length;comment:'焦距'" json:"focalLength"`                            // 焦距
+	FocalLengthIn35mmFormat string  `gorm:"column:focal_length_in_35mm_format;comment:'焦距'" json:"focalLengthIn35mmFormat"` // 焦距
+	ExposureProgram         string  `gorm:"column:exposure_program;comment:'曝光程序'" json:"exposureProgram"`                  // 曝光程序
+	ExposureProgramZhCN     string  `gorm:"column:exposure_program_zh_cn;comment:'曝光程序中文'" json:"exposureProgramZhCN"`      // 曝光程序中文
+	ISO                     int64   `gorm:"column:iso;comment:'ISO'" json:"ISO"`                                            // ISO
+	// 富士相机参数
+	FilmMode             string `gorm:"column:film_mode;comment:'胶片模拟模式'" json:"filmMode"`                          // 胶片模拟模式
+	DynamicRange         string `gorm:"column:dynamic_range;comment:'动态范围'" json:"dynamicRange"`                    // 动态范围
+	WhiteBalance         string `gorm:"column:white_balance;comment:'白平衡'" json:"whiteBalance"`                     // 白平衡
+	WhiteBalanceFineTune string `gorm:"column:white_balance_fine_tune;comment:'白平衡详细'" json:"whiteBalanceFineTune"` // 白平衡详细
+	Sharpness            string `gorm:"column:sharpness;comment:'锐度'" json:"sharpness"`                             // 锐度
+	NoiseReduction       string `gorm:"column:noise_reduction;comment:'降噪'" json:"noiseReduction"`                  // 降噪
+	ShadowTone           string `gorm:"column:shadow_tone;comment:'阴影'" json:"shadowTone"`                          // 阴影
+	Saturation           string `gorm:"column:saturation;comment:'饱和度'" json:"saturation"`                          // 饱和度
+	//Red                  string `gorm:"column:red;comment:'红色'" json:"red"`                                         // 红色
+	//Blue                 string `gorm:"column:blue;comment:'蓝色'" json:"blue"`                                       // 蓝色
+	ColorChromeFXBlue    string `gorm:"column:color_chrome_fx_blue;comment:'彩色FX蓝色'" json:"colorChromeFXBlue"`    // 彩色FX蓝色
+	ColorChromeEffect    string `gorm:"column:color_chrome_effect;comment:'色彩效果'" json:"colorChromeEffect"`       // 色彩效果
+	GrainEffectRoughness string `gorm:"column:grain_effect_roughness;comment:'颗粒效果'" json:"grainEffectRoughness"` // 颗粒效果
+	HighlightTone        string `gorm:"column:highlight_tone;comment:'高光'" json:"highlightTone"`                  // 高光
 }
 
 func CreateImgInfo(ii ImgInfo, c *fiber.Ctx) error {
