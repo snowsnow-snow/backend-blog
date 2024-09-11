@@ -23,7 +23,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 # Mac
-.DS_Store
 **/.DS_Store
 
 # vim/vi
@@ -44,3 +43,4 @@ unpackage/dist/dev/
 my-blog.db
 /logs
 /SQLite
+/image-ExifTool-12.86
