@@ -20,7 +20,6 @@ func BuildRouter(app *fiber.App) {
 		Use(util.TransactionBegin).
 		Post("/login", userController.Login).
 		Post("/register", userController.Register)
-
 	public := app.Group("/public")
 	{
 		image := public.Group("/img", controller.SetIsFIle)
@@ -29,7 +28,11 @@ func BuildRouter(app *fiber.App) {
 		}
 		video := public.Group("/video", controller.SetIsFIle)
 		{
-			video.Get("/:proportion-:videoId", fileController.ViewVideo)
+			video.Get("/:compressionRatio-:videoId", fileController.ViewVideo)
+		}
+		markdown := public.Group("/markdown", controller.SetIsFIle)
+		{
+			markdown.Get("/:markdownId", fileController.ViewMarkdown)
 		}
 		content := public.Group("/content")
 		{
@@ -39,11 +42,11 @@ func BuildRouter(app *fiber.App) {
 		resource := public.Group("/resource")
 		{
 			resource.Get("/list", resourceDescController.PublicList)
+			resource.Get("/markdown/list", resourceDescController.PublicMarkdownList)
 		}
 	}
 	app.Use(util.JWTMiddleware)
 	api := app.Group("/api", util.TokenAuth())
-	//api := app.Group("/api")
 	api.Post("/resetPassword", userController.ResetPassword)
 	{
 		content := api.Group("/content")
@@ -61,13 +64,19 @@ func BuildRouter(app *fiber.App) {
 
 		resource := api.Group("/resource")
 		{
-			resource.Post("", resourceDescController.Add)
+			add := resource.Group("/add")
+			{
+				add.Post("/img", resourceDescController.AddImg)
+				add.Post("/video", resourceDescController.AddVideo)
+				add.Post("/livePhotos", resourceDescController.AddLivePhotos)
+				add.Post("/markdown", resourceDescController.AddMarkDown)
+			}
 			resource.Post("/delete/:id", resourceDescController.Delete)
 			resource.Post("/update", resourceDescController.Update)
 			resource.Get("/list", resourceDescController.List)
 		}
 	}
 
-	apiPublic := api.Group("/public")
-	apiPublic.Post("/upload/img", fileController.UploadImg)
+	//apiPublic := api.Group("/public")
+	//apiPublic.Post("/upload/img", fileController.UploadImg)
 }

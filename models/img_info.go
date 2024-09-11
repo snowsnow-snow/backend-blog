@@ -42,6 +42,7 @@ type ImgInfo struct {
 	ColorChromeEffect    string `gorm:"column:color_chrome_effect;comment:'色彩效果'" json:"colorChromeEffect"`       // 色彩效果
 	GrainEffectRoughness string `gorm:"column:grain_effect_roughness;comment:'颗粒效果'" json:"grainEffectRoughness"` // 颗粒效果
 	HighlightTone        string `gorm:"column:highlight_tone;comment:'高光'" json:"highlightTone"`                  // 高光
+	LivePhotosId         string `gorm:"column:live_photos_id;comment:'live photo id'" json:"livePhotosId"`        // live photo id
 }
 
 func CreateImgInfo(ii ImgInfo, c *fiber.Ctx) error {

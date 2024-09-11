@@ -8,7 +8,10 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/gofiber/fiber/v2"
 	"image"
+	_ "image/gif"
 	"image/jpeg"
+	_ "image/jpeg"
+	_ "image/png"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -21,7 +24,8 @@ import (
 var (
 	VideoType        = []string{"MOV", "MP4", "WEBM"}
 	ImgType          = []string{"PNG", "JPG", "JPEG", "HEIC"}
-	CompressionRatio = []int{50, 70}
+	MarkDownType     = []string{"HTML", "MD"}
+	CompressionRatio = []int{50, 70, 1}
 	Separator        = string(filepath.Separator)
 )
 
@@ -84,15 +88,30 @@ func SaveFile(c *fiber.Ctx, file *multipart.FileHeader) (*models.FileInfo, error
 		return fileInfo, err
 	}
 	filePathAndName := fileInfo.FilePath + Separator + fileInfo.FileName + Point + fileInfo.Type
-	err = c.SaveFile(file, filePathAndName)
+	if strings.ToLower(fileInfo.Type) == "heic" {
+		err = c.SaveFile(file, filePathAndName)
+		if err != nil {
+			return fileInfo, err
+		}
+		//err := os.Rename(filePathAndName, fileInfo.FilePath+Separator+fileInfo.FileName+Point+"jpg")
+		err := ConvertHeicToJpg(filePathAndName, fileInfo.FilePath+Separator+fileInfo.FileName+Point+"jpg")
+		if err != nil {
+			return nil, err
+		}
+		fileInfo.Type = "jpg"
+		//fileInfo.RawFileName = fileInfo.FileName + Point + "jpg"
+	} else {
+		strings.ToLower(fileInfo.Type)
+		err = c.SaveFile(file, filePathAndName)
+	}
 	return fileInfo, err
 }
-func RotatePicture(rotate bool, paths ...string) error {
+func RotatePicture(rotate bool, angle int, paths ...string) error {
 	if !rotate {
 		return nil
 	}
 	for _, path := range paths {
-		err := RotatePicture90(path)
+		err := RotatePicture90(path, angle)
 		if err != nil {
 			return err
 		}
@@ -100,44 +119,17 @@ func RotatePicture(rotate bool, paths ...string) error {
 	return nil
 }
 
-//func RotatePicture90(path string) error {
-//	// 打开图像文件
-//	f, err := os.Open(path)
-//	if err != nil {
-//		return err
-//	}
-//	defer func(f *os.File) {
-//		err := f.Close()
-//		if err != nil {
-//			logger.Error.Println("Rotate picture close file error", err)
-//		}
-//	}(f)
-//	// 读取图像文件
-//	img, err := imaging.Decode(f)
-//	if err != nil {
-//		logger.Error.Println("Rotate picture read image file error", err)
-//		return err
-//	}
-//	// 旋转图像（顺时针90度）
-//	img = imaging.Rotate90(img)
-//	//// 保存旋转后的图像到新文件
-//	//out, err := os.Create(path)
-//	//if err != nil {
-//	//	return err
-//	//}
-//	//defer func(out *os.File) {
-//	//	err := out.Close()
-//	//	if err != nil {
-//	//		logger.Error.Println("Rotate picture close file error", err)
-//	//	}
-//	//}(out)
-//	return nil
-//}
-func RotatePicture90(path string) error {
+func RotatePicture90(path string, angle int) error {
 	// 打开图像文件
 	img, err := imaging.Open(path)
-	// 旋转图像（顺时针90度）
-	img = imaging.Rotate90(img)
+	// 旋转图像（顺时针旋转）
+	if angle == 90 {
+		img = imaging.Rotate270(img)
+	} else if angle == 180 {
+		img = imaging.Rotate180(img)
+	} else if angle == 270 {
+		img = imaging.Rotate90(img)
+	}
 	err = imaging.Save(img, path)
 	if err != nil {
 		logger.Error.Println("rotate picture read image file error", err)
@@ -145,7 +137,7 @@ func RotatePicture90(path string) error {
 	}
 	return nil
 }
-func Compress(path string, fileName string, fileType string, currFile *os.File) ([]string, error) {
+func Compress(path, fileName, fileType string, currFile *os.File) ([]string, error) {
 	_, err := currFile.Seek(0, 0)
 	if err != nil {
 		return nil, err
@@ -195,14 +187,17 @@ func DeleteFile(path string) error {
 
 func getFileInfoByFileHeader(file *multipart.FileHeader) (*models.FileInfo, error) {
 	filenameArray := strings.Split(file.Filename, Point)
-	fileType := filenameArray[len(filenameArray)-1]
+	fileType := strings.ToLower(filenameArray[len(filenameArray)-1])
 	timeStr := time.Now().Format("2006-01-02")
 	var filePath string
 	if IsInArray(VideoType, strings.ToUpper(fileType)) {
 		filePath = config.GlobalConfig.File.Path.Public + Separator + "video" + Separator + timeStr
 	} else if IsInArray(ImgType, strings.ToUpper(fileType)) {
 		filePath = config.GlobalConfig.File.Path.Public + Separator + "img" + Separator + timeStr
+	} else if IsInArray(MarkDownType, strings.ToUpper(fileType)) {
+		filePath = config.GlobalConfig.File.Path.Public + Separator + "markdown" + Separator + timeStr
 	}
+
 	err := CreateFileFolder(filePath)
 	if err != nil {
 		logger.Error.Println("create file older error", err)

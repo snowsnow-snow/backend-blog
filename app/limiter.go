@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-// BuilderLimiter 创建一个每五秒最多10次请求的限流器
+// BuilderLimiter 创建一个每五秒最多30次请求的限流器
 func BuilderLimiter(app *fiber.App) {
 	app.Use(limiter.New(limiter.Config{
-		Max:        10,
+		Max:        30,
 		Expiration: 5 * time.Second,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()

@@ -1,0 +1,27 @@
+docker run -d \
+  -p 800:800 \
+  --name backend-blog \
+  -v /var/log/go/backend-blog:/var/log/go/backend-blog \
+  -v /var/db/backend-blog:/var/db/backend-blog \
+  -v /home/snowsnowsnow/file/public:/home/snowsnowsnow/file/public \
+  -v /usr/bin/backend-blog/Image-ExifTool-12.96:/usr/bin/backend-blog/Image-ExifTool-12.96 \
+  backend-blog:1
+
+
+docker run -d \
+  -p 800:800 \
+  --name backend-blog \
+  -v //Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/logs:/var/log/go/backend-blog \
+  -v /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/SQLite:/var/db/backend-blog \
+  -v /Users/snowsnowsnow/file/public:/home/snowsnowsnow/file/public \
+  backend-blog:1
+
+
+curl --request GET \
+  --url http://snowsnowsnow.life:800/api/content/list \
+  --header 'Accept: */*' \
+  --header 'Accept-Encoding: gzip, deflate, br' \
+  --header 'Connection: keep-alive' \
+  --header 'User-Agent: PostmanRuntime-ApipostRuntime/1.1.0' \
+  --header 'content-type: multipart/form-data' \
+  --form title=1

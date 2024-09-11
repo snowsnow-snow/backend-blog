@@ -1,7 +1,6 @@
 package services
 
 import (
-	"backend-blog/common"
 	"backend-blog/dto"
 	"backend-blog/logger"
 	"backend-blog/models"
@@ -21,7 +20,6 @@ var (
 )
 
 func (r imgService) Add(c *fiber.Ctx, img *models.ImgInfo) error {
-	common.CreateInit(c, &img.BaseInfo)
 	err := models.CreateImgInfo(*img, c)
 	return err
 }

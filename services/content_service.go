@@ -97,23 +97,24 @@ func (r contentService) List(c *fiber.Ctx) (*models.Page[models.ContentInfo], er
 	}, nil
 }
 func (r contentService) PublicList(c *fiber.Ctx) (*models.Page[models.PublicContentInfo], error) {
-	count, err := models.Count(util.DB)
+	db := util.DB
+	if tag := c.Query("tag"); tag != "" {
+		db = db.Where("tag = ?", tag)
+	}
+	count, err := models.Count(db)
 	if err != nil {
 		logger.Error.Println("select content list err", err)
 		return nil, selectContentErr
-	}
-	db := util.DB
-	if title := c.Query("title"); title != "" {
-		db = db.Where("title LIKE ?", "%"+title+"%")
 	}
 	limit, offset := util.GetPageParam(c)
 	list := new([]models.PublicContentInfo)
 	db = db.Where("state = ?", "1")
 	tx := db.Select("id,title,text,publish_location,state,type,tag,the_cover,created_time").
 		Table(constant.Table.ContentInfo).
-		Find(&list).
+		Order("created_time desc").
 		Limit(limit).
-		Offset((offset - 1) * limit)
+		Offset((offset - 1) * limit).
+		Find(&list)
 	if tx.Error != nil {
 		logger.Error.Println("select content list err", err)
 		return nil, selectContentErr

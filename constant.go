@@ -7,6 +7,7 @@ var (
 		"video_info",
 		"content_info",
 		"resource_desc",
+		"markdown_info",
 	}
 	Local = LocalNames{
 		"TransactionDB", // 数据库事物
@@ -19,6 +20,7 @@ type TableNames struct {
 	VideoInfo    string
 	ContentInfo  string
 	ResourceDesc string
+	MarkdownInfo string
 }
 type LocalNames struct {
 	TransactionDB string

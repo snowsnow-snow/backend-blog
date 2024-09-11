@@ -3,8 +3,14 @@ package util
 import (
 	"regexp"
 	"strconv"
+	"strings"
 )
 
+func ContainsIgnoreCase(str, substr string) bool {
+	str = strings.ToLower(str)
+	substr = strings.ToLower(substr)
+	return strings.Contains(str, substr)
+}
 func ReverseString(s string) string {
 	runes := []rune(s)
 	for from, to := 0, len(runes)-1; from < to; from, to = from+1, to-1 {
@@ -15,6 +21,15 @@ func ReverseString(s string) string {
 func IsInArray(arr []string, target string) bool {
 	for _, v := range arr {
 		if v == target {
+			return true
+		}
+	}
+	return false
+}
+
+func IsInArrayNoCaseSensitive(arr []string, target string) bool {
+	for _, v := range arr {
+		if strings.ToLower(v) == strings.ToLower(target) {
 			return true
 		}
 	}

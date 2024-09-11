@@ -37,7 +37,7 @@ func InsertUser(createUser User, c *fiber.Ctx) error {
 func UserExistsByUsername(c *fiber.Ctx, username string) (int64, error) {
 	var count int64
 	transactionDB := c.Locals(constant.Local.TransactionDB).(*gorm.DB)
-	countResult := transactionDB.Table(constant.Table.User).Where(User{Username: username}).Count(&count)
+	countResult := transactionDB.Table(constant.Table.User). /*Where(User{Username: username}).*/ Count(&count)
 	if countResult.Error != nil {
 		return 0, countResult.Error
 	}

@@ -80,5 +80,9 @@ func initTables() error {
 		tables = append(tables, &models.ResourceDesc{})
 		err = DB.AutoMigrate(&models.ResourceDesc{})
 	}
+	if !DB.Migrator().HasTable(&models.MarkdownInfo{}) {
+		tables = append(tables, &models.MarkdownInfo{})
+		err = DB.AutoMigrate(&models.MarkdownInfo{})
+	}
 	return err
 }

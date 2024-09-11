@@ -2,14 +2,15 @@ package result
 
 import (
 	constant "backend-blog"
+	"backend-blog/logger"
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 type Response struct {
-	Status int     // 错误码
-	Result *Result // 错误码
+	Status int // 错误码
+	Result *Result
 }
 type Result struct {
 	Code int         `json:"code"` // 错误码
@@ -126,6 +127,7 @@ func SignatureInvalidResult(c *fiber.Ctx, result *Result) error {
 }
 
 func NewResult(c *fiber.Ctx, response *Response) error {
+	logger.Info.Println(response.Result)
 	return c.Status(response.Status).JSON(response.Result)
 }
 

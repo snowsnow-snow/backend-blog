@@ -8,13 +8,14 @@ import (
 
 type VideoInfo struct {
 	BaseInfo
-	Height         int     // 高度
-	Width          int     // 宽度
-	Duration       int     // 时长
-	FrameRate      float64 // 帧率
-	Model          string  // 型号
-	Make           string  // 品牌
-	CodingStandard string  // 视频编码
+	Height         int     `json:"height"`         // 高度
+	Width          int     `json:"width"`          // 宽度
+	Duration       int     `json:"duration"`       // 时长
+	FrameRate      float64 `json:"frameRate"`      // 帧率
+	Model          string  `json:"model"`          // 型号
+	Make           string  `json:"make"`           // 品牌
+	CodingStandard string  `json:"codingStandard"` // 视频编码
+	LivePhoto      int     `json:"livePhoto"`      // 是否为 live photo,0:否,1:是
 }
 
 func CreateVideoInfo(vi VideoInfo, c *fiber.Ctx) error {

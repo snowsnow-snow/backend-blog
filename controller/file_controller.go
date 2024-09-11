@@ -37,11 +37,16 @@ func (r fileController) ViewImage(c *fiber.Ctx) error {
 	return c.SendFile(path)
 }
 func (r fileController) ViewVideo(c *fiber.Ctx) error {
-	_, proportion := c.Params("isRaw"), c.Params("proportion")
+	_, proportion := c.Params("isRaw"), c.Params("compressionRatio")
 	if compressionRatioMap[proportion] == "" {
 		return result.FailWithMsg(c, result.WrongParameter.Error())
 	}
 	path, _ := services.FileService.ByIdGetVideoPath(c.Params("videoId"))
+	c.Set("Content-Type", "video/quicktime")
+	return c.SendFile(path)
+}
+func (r fileController) ViewMarkdown(c *fiber.Ctx) error {
+	path, _ := services.FileService.ByIdGetMarkdownPath(c.Params("markdownId"))
 	return c.SendFile(path)
 }
 func (r fileController) UploadImg(c *fiber.Ctx) error {

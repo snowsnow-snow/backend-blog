@@ -2,7 +2,6 @@ package services
 
 import (
 	constant "backend-blog"
-	"backend-blog/common"
 	"backend-blog/logger"
 	"backend-blog/models"
 	"errors"
@@ -20,7 +19,6 @@ var (
 )
 
 func (r videoService) Add(c *fiber.Ctx, video *models.VideoInfo) error {
-	common.CreateInit(c, &video.BaseInfo)
 	err := models.CreateVideoInfo(*video, c)
 	return err
 }

@@ -55,7 +55,11 @@ func (r fileService) SaveFile(c *fiber.Ctx) ([]*models.SaveFileInfo, []*models.S
 			defer wg.Done()
 			for i := range videos {
 				videoInfo := videos[i]
-				video, err := util.ReadInfo(videoInfo.FilePath + util.Separator + videoInfo.FileName)
+				video, err := util.ReadInfo(videoInfo.FilePath +
+					util.Separator +
+					videoInfo.FileName +
+					util.Point +
+					videoInfo.Type)
 				if err != nil {
 					logger.Error.Println(err)
 					continue
@@ -80,7 +84,7 @@ func (r fileService) SaveFile(c *fiber.Ctx) ([]*models.SaveFileInfo, []*models.S
 			defer wg.Done()
 			for i := range images {
 				imgInfo := images[i]
-				img := exiftool.ReadExif(imgInfo.FilePath, imgInfo.FileName, imgInfo.Type)
+				img := exiftool.ReadExif(imgInfo.FilePath, imgInfo.FileName, imgInfo.RawFileName, imgInfo.Type)
 				if img == nil {
 					img = &models.ImgInfo{}
 				}
@@ -132,7 +136,7 @@ func (r fileService) ByIdCompressionRatioGetImgPath(imgId string, compressionRat
 		return "", err
 	}
 	var fileName string
-	if compressionRatio == "100" {
+	if compressionRatio == "100" || imgInfo.ResourceDesc.FileInfo.Type == "HEIC" {
 		fileName = imgInfo.FilePath + util.Separator + imgInfo.FileName + util.Point + imgInfo.Type
 	} else {
 		fileName = imgInfo.FilePath + util.Separator + imgInfo.FileName + util.Delimiter + compressionRatio + util.Point + imgInfo.Type
@@ -141,11 +145,21 @@ func (r fileService) ByIdCompressionRatioGetImgPath(imgId string, compressionRat
 }
 
 func (r fileService) ByIdGetVideoPath(videoId string) (string, error) {
-	videoInfo, err := r.ByIdGetVideoInfo(videoId, "file_path", "file_name")
+	videoInfo, err := dto.SelectResourcesDescVideoById(" WHERE RD.file_id = ?", videoId)
 	if err != nil {
 		return "", err
 	}
-	println(videoInfo)
+	fileName := videoInfo.FilePath + util.Separator + videoInfo.FileName + util.Point + videoInfo.Type
 	//return videoInfo.FilePath + common.Separator + videoInfo.FileName, nil
-	return "", nil
+	return fileName, nil
+}
+
+func (r fileService) ByIdGetMarkdownPath(videoId string) (string, error) {
+	videoInfo, err := dto.SelectResourcesDescMarkdownById(" WHERE RD.file_id = ?", videoId)
+	if err != nil {
+		return "", err
+	}
+	fileName := videoInfo.FilePath + util.Separator + videoInfo.FileName + util.Point + videoInfo.Type
+	//return videoInfo.FilePath + common.Separator + videoInfo.FileName, nil
+	return fileName, nil
 }

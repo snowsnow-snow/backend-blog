@@ -4,6 +4,7 @@ import (
 	constant "backend-blog"
 	"backend-blog/common"
 	"backend-blog/dto"
+	"backend-blog/handle"
 	"backend-blog/logger"
 	"backend-blog/models"
 	"backend-blog/result"
@@ -24,52 +25,179 @@ var (
 	selectDeleteResourceDescErr = errors.New("select resource desc err")
 )
 
-func (r resourceDescService) Add(c *fiber.Ctx) error {
-	rd := new(models.ResourceDesc)
-	err := c.BodyParser(rd)
+func (r resourceDescService) AddImg(c *fiber.Ctx) error {
+	saveFiles, err := util.SaveFiles(c)
 	if err != nil {
-		return result.WrongParameter
-	}
-	common.CreateInit(c, &rd.BaseInfo)
-	videoInfos, imgInfos, err := FileService.SaveFile(c)
-	if err != nil {
-		logger.Error.Println("save file", err)
 		return err
 	}
-	if len(videoInfos) > 0 {
-		video := videoInfos[0]
-		rd.ResourceType = video.Type
-		if err = VideoService.Add(c, &video.VideoInfo); err != nil {
-			logger.Error.Println("Insert video err", err)
-			return result.SaveVideoErr
+	rdsInfos := make([]*models.ResourceDesc, len(saveFiles))
+	rdsInfoInitHandle := handle.Img{}
+	for index, file := range saveFiles {
+		info, err := rdsInfoInitHandle.InitFileInfo(file, c)
+		if err != nil {
+			return err
 		}
-		rd.FileId = video.VideoInfo.ID
-	}
-	fileId := ""
-	if len(imgInfos) > 0 {
-		img := imgInfos[0]
-		rd.ResourceType = img.Type
-		if err = ImgService.Add(c, &img.ImgInfo); err != nil {
-			logger.Error.Println("Insert img err", err)
-			return result.SaveImgErr
+		if err = ImgService.Add(c, &info.ImgInfo); err != nil {
+			return err
 		}
-		rd.FileId = img.ImgInfo.ID
-		fileId = img.ImgInfo.ID
-		rd.FileInfo = img.FileInfo
-	}
-	err = models.CreateResourceDesc(*rd, c)
-	if err != nil {
-		return createContentErr
-	}
-	if rd.Cover == 1 {
-		err = models.UpdateContentCover(fileId, rd.ContentId, c)
+		rdsInfos[index], err = initRdsInfo(info, c)
+		if rdsInfos[index].Cover == 1 {
+			err := setContentCover(*rdsInfos[index], c)
+			if err != nil {
+				return err
+			}
+		}
 		if err != nil {
 			return err
 		}
 	}
+	err = models.CreateInBatchesResourceDesc(rdsInfos, c)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
+func (r resourceDescService) AddVideo(c *fiber.Ctx) error {
+	saveFiles, err := util.SaveFiles(c)
+	if err != nil {
+		return err
+	}
+	rdsInfos := make([]*models.ResourceDesc, len(saveFiles))
+	rdsInfoInitHandle := handle.Video{}
+	for index, file := range saveFiles {
+		info, err := rdsInfoInitHandle.InitFileInfo(file, c)
+		if err != nil {
+			return err
+		}
+		if err = ImgService.Add(c, &info.ImgInfo); err != nil {
+			return err
+		}
+		rdsInfos[index], err = initRdsInfo(info, c)
+		if err != nil {
+			return err
+		}
+	}
+	err = models.CreateInBatchesResourceDesc(rdsInfos, c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r resourceDescService) AddLivePhotos(c *fiber.Ctx) error {
+	saveFiles, err := util.SaveFiles(c)
+	if err != nil {
+		return err
+	}
+	rdsInfos := make([]*models.ResourceDesc, len(saveFiles))
+	videoInfos, imgInfos := make([]*models.SaveFileInfo, len(saveFiles)/2), make([]*models.SaveFileInfo, len(saveFiles)/2)
+	videoIndex, imgIndex := 0, 0
+	rdsInfoInitHandle := handle.LivePhotos{}
+	for index, file := range saveFiles {
+		info, err := rdsInfoInitHandle.InitFileInfo(file, c)
+		if err != nil {
+			return err
+		}
+		rdsInfos[index], err = initRdsInfo(info, c)
+		if err != nil {
+			return err
+		}
+		if util.IsInArrayNoCaseSensitive(util.ImgType, file.Type) {
+			imgInfos[imgIndex] = info
+			if rdsInfos[index].Cover == 1 {
+				err := setContentCover(*rdsInfos[index], c)
+				if err != nil {
+					return err
+				}
+			}
+			imgIndex++
+			continue
+		}
+		if util.IsInArrayNoCaseSensitive(util.VideoType, file.Type) {
+			videoInfos[videoIndex] = info
+			videoIndex++
+		}
+	}
+	for _, video := range videoInfos {
+		for _, img := range imgInfos {
+			if strings.Split(img.FileInfo.RawFileName, ".")[0] == strings.Split(video.FileInfo.RawFileName, ".")[0] {
+				img.LivePhotosId = video.VideoInfo.ID
+				video.VideoInfo.LivePhoto = 1
+			}
+		}
+	}
+	for _, img := range imgInfos {
+		err := ImgService.Add(c, &img.ImgInfo)
+		if err != nil {
+			return err
+		}
+	}
+	for _, video := range videoInfos {
+		err := VideoService.Add(c, &video.VideoInfo)
+		if err != nil {
+			return err
+		}
+	}
+	err = models.CreateInBatchesResourceDesc(rdsInfos, c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r resourceDescService) AddMarkDown(c *fiber.Ctx) error {
+	saveFiles, err := util.SaveFiles(c)
+	if err != nil {
+		return err
+	}
+	rdsInfos := make([]*models.ResourceDesc, len(saveFiles))
+	rdsInfoInitHandle := handle.Markdown{}
+	for index, file := range saveFiles {
+		info, err := rdsInfoInitHandle.InitFileInfo(file, c)
+		if err != nil {
+			return err
+		}
+		if err = MarkdownService.Add(c, &info.MarkdownInfo); err != nil {
+			return err
+		}
+		rdsInfos[index], err = initRdsInfo(info, c)
+		if err != nil {
+			return err
+		}
+	}
+	err = models.CreateInBatchesResourceDesc(rdsInfos, c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func initRdsInfo(saveFile *models.SaveFileInfo, c *fiber.Ctx) (*models.ResourceDesc, error) {
+	rds := new(models.ResourceDesc)
+	err := c.BodyParser(rds)
+	if err != nil {
+		return nil, err
+	}
+	rds.ResourceType = saveFile.Type
+	if saveFile.VideoInfo.ID != "" {
+		rds.FileId = saveFile.VideoInfo.ID
+	} else if saveFile.ImgInfo.ID != "" {
+		rds.FileId = saveFile.ImgInfo.ID
+	} else if saveFile.MarkdownInfo.ID != "" {
+		rds.FileId = saveFile.MarkdownInfo.ID
+	}
+	rds.FileInfo = saveFile.FileInfo
+	common.CreateInit(c, &rds.BaseInfo)
+	return rds, nil
+}
+
+func setContentCover(rd models.ResourceDesc, c *fiber.Ctx) error {
+	err := models.UpdateContentCover(rd.FileId, rd.ContentId, c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (r resourceDescService) Delete(id string, c *fiber.Ctx) error {
 	db := c.Locals(constant.Local.TransactionDB).(*gorm.DB)
 	db = db.Select("resource_type")
@@ -207,7 +335,6 @@ func (r resourceDescService) Update(c *fiber.Ctx) error {
 		return err
 	}
 	videoInfos, imgInfos, err := FileService.SaveFile(c)
-
 	if err != nil {
 		logger.Error.Println("save file", err)
 		return err
@@ -222,58 +349,70 @@ func (r resourceDescService) Update(c *fiber.Ctx) error {
 	return nil
 }
 
-func (r resourceDescService) List(c *fiber.Ctx) ([]*dto.ResourcesDescImg, error) {
+func (r resourceDescService) List(c *fiber.Ctx) ([]*models.PublicResourceDesc, error) {
 	db := util.DB
 	contentId := c.Query("contentId")
-	//if contentId := c.Query("contentId"); contentId != "" {
-	//	db = db.Where("RD.content_id = ?", contentId)
-	//}
-	listResourceDesc, err := dto.SelectResourcesDescImgList(db, contentId)
+	images, err := dto.SelectResourcesDescImgList(db, contentId)
+	videos, err := dto.SelectResourcesDescVideoList(db, contentId)
+	println(images, videos)
 	//listResourceDesc, err := models.ListResourceDesc(db)
 	if err != nil {
 		logger.Error.Println("select resource desc list err", err)
 		return nil, selectContentErr
 	}
-	return listResourceDesc, nil
+	return nil, nil
 }
 
-func (r resourceDescService) PublicList(c *fiber.Ctx) ([]*dto.PublicResourcesDescImg, error) {
+func (r resourceDescService) PublicMarkdownList(c *fiber.Ctx) ([]*models.PublicMarkdownResourceDesc, error) {
 	db := util.DB
 	contentId := c.Query("contentId")
-	//if contentId := c.Query("contentId"); contentId != "" {
-	//	db = db.Where("RD.content_id = ?", contentId)
-	//}
-	listResourceDesc, err := dto.SelectPublicResourcesDescImgList(db, contentId)
-	//listResourceDesc, err := models.ListResourceDesc(db)
+	list, err := dto.SelectResourcesDescMarkdownList(db, contentId)
 	if err != nil {
 		logger.Error.Println("select resource desc list err", err)
 		return nil, selectContentErr
 	}
-	if len(listResourceDesc) > 0 {
-		formatFilmParams(listResourceDesc)
-	}
-	return listResourceDesc, nil
+	return list, nil
 }
 
-func formatFilmParams(list []*dto.PublicResourcesDescImg) {
+func (r resourceDescService) PublicList(c *fiber.Ctx) ([]*models.PublicResourceDesc, error) {
+	db := util.DB
+	contentId := c.Query("contentId")
+	images, err := dto.SelectResourcesDescImgList(db, contentId)
+	if err != nil {
+		logger.Error.Println("select img resource desc list err", err)
+		return nil, selectContentErr
+	}
+	if len(images) > 0 {
+		formatFilmParams(images)
+	}
+	videos, err := dto.SelectResourcesDescVideoList(db, contentId)
+	if err != nil {
+		logger.Error.Println("select video resource desc list err", err)
+		return nil, selectContentErr
+	}
+
+	return append(images, videos...), nil
+}
+
+func formatFilmParams(list []*models.PublicResourceDesc) {
 	for _, item := range list {
 		setFilmMode(item)
 	}
 }
 
-func setFilmMode(img *dto.PublicResourcesDescImg) {
+func setFilmMode(desc *models.PublicResourceDesc) {
 	//img.FilmModeFormat = util.GetChineseFilmMode(img.FilmMode)
-	img.FilmModeFormat = img.FilmMode
-	img.DynamicRangeFormat = util.GetChineseDynamicRange(img.DynamicRange)
-	img.WhiteBalanceFormat = util.GetChineseWhiteBalance(img.DynamicRange)
-	img.WhiteBalanceFineTuneFormat = util.GetWhiteBalanceFineTuneFormat(img.WhiteBalanceFineTune)
-	img.SharpnessFormat = util.GetChineseGenericDescriptionMap(img.Sharpness)
-	img.GrainEffectRoughnessFormat = util.GetChineseGenericDescriptionMap(img.GrainEffectRoughness)
-	img.ColorChromeEffectFormat = util.GetChineseGenericDescriptionMap(img.ColorChromeEffect)
-	img.ShadowToneFormat = util.GetNumeric(img.ShadowTone)
-	img.HighlightToneFormat = util.GetNumeric(img.HighlightTone)
-	img.SaturationFormat = util.GetNumericAndCharParam(img.Saturation)
-	img.NoiseReductionFormat = util.GetNumeric(img.NoiseReduction)
-	img.ColorChromeFXBlueFormat = util.GetChineseGenericDescriptionMap(img.ColorChromeFXBlue)
+	desc.FilmModeFormat = desc.ImgInfo.FilmMode
+	desc.DynamicRangeFormat = util.GetChineseDynamicRange(desc.ImgInfo.DynamicRange)
+	desc.WhiteBalanceFormat = util.GetChineseWhiteBalance(desc.ImgInfo.DynamicRange)
+	desc.WhiteBalanceFineTuneFormat = util.GetWhiteBalanceFineTuneFormat(desc.ImgInfo.WhiteBalanceFineTune)
+	desc.SharpnessFormat = util.GetChineseGenericDescriptionMap(desc.ImgInfo.Sharpness)
+	desc.GrainEffectRoughnessFormat = util.GetChineseGenericDescriptionMap(desc.ImgInfo.GrainEffectRoughness)
+	desc.ColorChromeEffectFormat = util.GetChineseGenericDescriptionMap(desc.ImgInfo.ColorChromeEffect)
+	desc.ShadowToneFormat = util.GetNumeric(desc.ImgInfo.ShadowTone)
+	desc.HighlightToneFormat = util.GetNumeric(desc.ImgInfo.HighlightTone)
+	desc.SaturationFormat = util.GetNumericAndCharParam(desc.ImgInfo.Saturation)
+	desc.NoiseReductionFormat = util.GetNumeric(desc.ImgInfo.NoiseReduction)
+	desc.ColorChromeFXBlueFormat = util.GetChineseGenericDescriptionMap(desc.ImgInfo.ColorChromeFXBlue)
 
 }

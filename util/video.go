@@ -12,10 +12,10 @@ import (
 	"time"
 )
 
-var makes = [...]string{"Apple", "iPhone", "FUJIFILM"}
+var makes = [...]string{"Apple", "iPhone", "FUJIFILM", "qt"}
 
 func ReadInfo(path string) (*models.VideoInfo, error) {
-	ffprobe.SetFFProbeBinPath("/Users/yangjian/Library/CloudStorage/OneDrive-个人/附件/ffprobe/ffprobe")
+	ffprobe.SetFFProbeBinPath("/Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/附件/ffprobe/ffprobe")
 	// 打开要解析的音视频文件
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
@@ -44,6 +44,7 @@ func setBrand(probeData *ffprobe.ProbeData, videoInfo *models.VideoInfo) {
 		if getString == "" {
 			return
 		}
+		getString = strings.Trim(getString, " ")
 		for index := range makes {
 			if strings.Contains(getString, makes[index]) {
 				handle := getHandleByBrand(makes[index])
@@ -62,7 +63,7 @@ func getHandleByBrand(brand string) VideoInfoHandle {
 	case "FUJIFILM":
 		return &Fujifilm{}
 	default:
-		return nil
+		return &Universal{}
 	}
 	return nil
 }
@@ -73,6 +74,7 @@ type VideoInfoHandle interface {
 
 type Apple struct{}
 type Fujifilm struct{}
+type Universal struct{}
 
 func (r Apple) SetVideoInfo(probeData *ffprobe.ProbeData, videoInfo *models.VideoInfo) {
 	makeName, err := probeData.Format.TagList.GetString("com.apple.quicktime.make")
@@ -111,4 +113,18 @@ func (r Fujifilm) SetVideoInfo(probeData *ffprobe.ProbeData, videoInfo *models.V
 		}
 
 	}
+}
+func (r Universal) SetVideoInfo(probeData *ffprobe.ProbeData, videoInfo *models.VideoInfo) {
+	if probeData.Streams[0].RFrameRate != "" {
+		frameRateArray := strings.Split(probeData.Streams[0].RFrameRate, "/")
+		dividend, err := strconv.ParseFloat(frameRateArray[0], 64)
+		divisor, err := strconv.ParseFloat(frameRateArray[1], 64)
+		if err != nil {
+			logger.Warn.Println("get frame rate err,", err)
+		} else {
+			videoInfo.FrameRate = dividend / divisor
+		}
+
+	}
+	logger.Info.Println(probeData)
 }

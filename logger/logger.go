@@ -43,7 +43,7 @@ func init() {
 }
 
 // createLogFolder 当系统第一次启动，或者距离上次创建日志文件夹的日期已发生变化
-// 就会新建新的一个以当前日期为名称的文件夹，后续的日志保存在此目录
+// 就会新建一个新的以当前日期为名称的文件夹，后续的日志保存在此目录
 func createLogFolder(logPath string) string {
 	if folderNotExist(logPath) {
 		if err := createFolder(logPath); err != nil {
@@ -87,7 +87,7 @@ func mountLog(file *os.File) {
 }
 
 // getLogFileInfo 获取当前日志文件夹下最新的一个文件并返回文件信息和编号
-// 根据文件编号确定最新的文件，如果当前文件夹下没有日志文件，编号为 -1
+// 根据文件编号确定最新的文件，如果当前文件夹下没有日志文件，返回 -1
 func getLogFileInfo(files []os.DirEntry) (fs.FileInfo, int64) {
 	var maxSort int64 = -1
 	var maxSortFile os.DirEntry

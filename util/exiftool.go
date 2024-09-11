@@ -1,6 +1,7 @@
 package util
 
 import (
+	"backend-blog/config"
 	"backend-blog/logger"
 	"backend-blog/models"
 	"bytes"
@@ -11,13 +12,14 @@ import (
 	"image"
 	"os"
 	"os/exec"
+	"reflect"
 	"strings"
 )
 
 type Exiftool struct {
 }
 
-func (r *Exiftool) ReadExif(path string, fileName string, fileType string) *models.ImgInfo {
+func (r *Exiftool) ReadExif(path, fileName, rawFileName, fileType string) *models.ImgInfo {
 	fullPath := path + Separator + fileName + Point + fileType
 	// 打开文件
 	file, err := os.Open(fullPath)
@@ -32,12 +34,13 @@ func (r *Exiftool) ReadExif(path string, fileName string, fileType string) *mode
 		return nil
 	}
 	var imgInfo models.ImgInfo
-
+	logger.Info.Println("ExifTool ", config.GlobalConfig.ExifTool.Path+Separator+"exiftool")
 	// 调用 exiftool 并读取图像的所有元数据
-	cmd := exec.Command("image-ExifTool-12.86/exiftool", "-j", fullPath)
+	cmd := exec.Command(config.GlobalConfig.ExifTool.Path+Separator+"exiftool", "-j", fullPath)
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
+		logger.Error.Println("cmd run error", err)
 		return nil
 	}
 	// 解析 JSON 格式的输出
@@ -62,10 +65,11 @@ func (r *Exiftool) ReadExif(path string, fileName string, fileType string) *mode
 	if err != nil {
 		logger.Error.Printf("%s %s\n", fileName, err)
 	}
-	rotate, err := setOrientation(fullPath, &imgInfo, data)
+	rotate, angle, err := setOrientation(&imgInfo, data)
 	if err != nil {
 		logger.Error.Printf("%s %s\n", fileName, err)
 	}
+	setSoftware(&imgInfo, data)
 	file, err = os.Open(fullPath)
 	if err != nil {
 		logger.Error.Println("open file error", err)
@@ -74,10 +78,13 @@ func (r *Exiftool) ReadExif(path string, fileName string, fileType string) *mode
 	// 压缩图片
 	compressPaths, err := Compress(path, fileName, fileType, file)
 	if err != nil {
-		logger.Error.Printf("%s compress err.%s \n", fileName, err)
+		logger.Error.Printf("%s compress err. %s \n", fileName, err)
 		return &imgInfo
 	}
-	err = RotatePicture(rotate, compressPaths...)
+	if ContainsIgnoreCase(rawFileName, "heic") {
+		compressPaths = append(compressPaths, fullPath)
+	}
+	err = RotatePicture(rotate, angle, compressPaths...)
 	if err != nil {
 		logger.Error.Printf("%s rotate picture err.%s \n", fileName, err)
 		return &imgInfo
@@ -117,10 +124,10 @@ func setWidthANdHeightDimensionByBounds(imgInfo *models.ImgInfo, file *os.File) 
 	imgInfo.ImageWidth = bounds.Dx()
 	imgInfo.ImageHeight = bounds.Dy()
 }
-func setOrientation(fullPath string, imgInfo *models.ImgInfo, exifData map[string]interface{}) (bool, error) {
+func setOrientation(imgInfo *models.ImgInfo, exifData map[string]interface{}) (bool, int, error) {
 	orientation := exifData["Orientation"]
 	if orientation == nil {
-		return false, nil
+		return false, 0, nil
 	}
 	orientationStr, _ := orientation.(string)
 	if strings.Contains(orientationStr, "Rotate") {
@@ -131,10 +138,34 @@ func setOrientation(fullPath string, imgInfo *models.ImgInfo, exifData map[strin
 		oldWidth := imgInfo.ImageWidth
 		imgInfo.ImageWidth = imgInfo.ImageHeight
 		imgInfo.ImageHeight = oldWidth
-		return true, nil
+		fromString := getNumbersFromString(orientationStr)
+		return true, int(fromString[0]), nil
 	}
-	return false, nil
+	return false, 0, nil
 }
+
+func setSoftware(imgInfo *models.ImgInfo, exifData map[string]interface{}) {
+	software := exifData["Software"]
+	if software == nil {
+		return
+	}
+	valType := reflect.TypeOf(software)
+	if valType.Kind() == reflect.String {
+		imgInfo.Software = software.(string)
+		return
+	}
+	imgInfo.Software = fmt.Sprintf("%f", software)
+	for strings.HasSuffix(imgInfo.Software, "0") {
+		imgInfo.Software = strings.TrimSuffix(imgInfo.Software, "0")
+	}
+	if strings.HasSuffix(imgInfo.Software, ".") {
+		imgInfo.Software = strings.TrimSuffix(imgInfo.Software, ".")
+	}
+	if imgInfo.Make == "Apple" {
+		imgInfo.Software = "iOS " + imgInfo.Software
+	}
+}
+
 func redAndBlue(imgInfo *models.ImgInfo, exifData map[string]interface{}) error {
 	//whiteBalanceFineTune := fmt.Sprint(exifData["WhiteBalanceFineTune"])
 	//if whiteBalanceFineTune == "" {

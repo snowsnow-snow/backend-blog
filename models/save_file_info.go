@@ -4,4 +4,5 @@ type SaveFileInfo struct {
 	FileInfo
 	ImgInfo
 	VideoInfo
+	MarkdownInfo
 }

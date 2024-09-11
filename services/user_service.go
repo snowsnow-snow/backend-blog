@@ -135,7 +135,7 @@ func (r userService) CheckResetPassword(c *fiber.Ctx) (*UserRegisterInfo, error)
 
 func (r userService) UpdateUserPassword(newPassword string, currUser models.User, c *fiber.Ctx) error {
 	password, salt := util.GenerateNewPassword(newPassword)
-	newUser := models.User{Password: password, Salt: salt, BaseInfo: models.BaseInfo{UpdatedTime: models.DateTime{}.Now()}}
+	newUser := models.User{Password: password, Salt: salt, BaseInfo: models.BaseInfo{UpdatedTime: models.Now()}}
 	transactionDB := c.Locals(constant.Local.TransactionDB).(*gorm.DB)
 	if update := transactionDB.Model(&currUser).Updates(newUser); update.Error != nil {
 		return update.Error
