@@ -13,7 +13,7 @@ func init() {
 	var filepath string
 	if *env == "" {
 		*env = "dev"
-		filepath = "config/config-" + *env + ".yaml"
+		filepath = "././config/config-dev.yaml"
 	} else {
 		dir, err := os.Getwd()
 		if err != nil {
@@ -36,10 +36,16 @@ func init() {
 
 // Config 全剧配置
 type Config struct {
+	Server   Server   `yaml:"server"`
 	DBConfig DBConfig `yaml:"db"`
 	Log      Log      `yaml:"log"`
 	File     File     `yaml:"file"`
 	ExifTool ExifTool `yaml:"exifTool"`
+}
+
+// Server 服务配置
+type Server struct {
+	Port uint16 `yaml:"port"`
 }
 
 // DBConfig 数据库配置
@@ -73,7 +79,8 @@ type File struct {
 }
 
 type Path struct {
-	Public string `yaml:"public"`
+	System   string `yaml:"system"`
+	Resource string `yaml:"resource"`
 }
 
 type ExifTool struct {

@@ -1,21 +1,19 @@
+server:
+  port: 800
 db:
   type: sqlite
   sqlite3:
     path: /var/db/backend-blog/my-blog
-#  mysql:
-#    host: 127.0.0.1
-#    port: 13307
-#    user: root
-#    passwd: 2022.mysql
-#    database: my_blog
 log:
-  name: app
+  name: middleware
   path: /var/log/go/backend-blog
   # 单位：MB
   maxSize: 10
 file:
   path:
-    public: /home/snowsnowsnow/file/public
-
+    # 系统路径
+    system: /home
+    # 资源路径
+    resource: /file/public
 exifTool:
   path: /usr/bin/backend-blog/Image-ExifTool-12.96

@@ -1,20 +1,19 @@
+server:
+  port: 800
 db:
   type: sqlite
   sqlite3:
-    path: ./SQLite/my-blog-dev
-  mysql:
-    host: 127.0.0.1
-    port: 13307
-    user: root
-    passwd: 2022.mysql
-    database: my_blog
+    path: /Users/snowsnowsnow/MyBlog/SQLite/my-blog-dev
 log:
-  name: app
-  path: /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/logs
+  name: middleware
+  path: /Users/snowsnowsnow/MyBlog/logs
   # 单位：MB
   maxSize: 10
 file:
   path:
-    public: /Users/snowsnowsnow/file/public
+    # 系统路径
+    system: /Users/snowsnowsnow/MyBlog
+    # 资源路径
+    resource: /file/public
 exifTool:
-  path: image-ExifTool-12.86
+  path: /Users/snowsnowsnow/MyBlog/image-ExifTool-12.86

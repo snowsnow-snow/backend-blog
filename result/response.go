@@ -1,8 +1,7 @@
 package result
 
 import (
-	constant "backend-blog"
-	"backend-blog/logger"
+	"backend-blog/internal/constant"
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -29,20 +28,20 @@ const (
 	SignatureInvalidMsg  = "Signature invalid"
 )
 
-func successCommit(c *fiber.Ctx) {
-	if transactionDB := c.Locals(constant.Local.TransactionDB).(*gorm.DB); transactionDB != nil {
-		transactionDB.Commit()
-	}
-}
+//	func successCommit(c *fiber.Ctx) {
+//		if transactionDB := c.Locals(constant.Local.TransactionDB).(*gorm.DB); transactionDB != nil {
+//			transactionDB.Commit()
+//		}
+//	}
 func Success(c *fiber.Ctx) error {
-	successCommit(c)
+	//successCommit(c)
 	return NewResult(c, &Response{
 		Status: fiber.StatusOK,
 		Result: BuildSuccessResult(),
 	})
 }
 func SuccessWithMsg(c *fiber.Ctx, msg string) error {
-	successCommit(c)
+	//successCommit(c)
 	return NewResult(c, &Response{
 		Status: fiber.StatusOK,
 		Result: &Result{
@@ -53,7 +52,7 @@ func SuccessWithMsg(c *fiber.Ctx, msg string) error {
 	})
 }
 func SuccessData(c *fiber.Ctx, data any) error {
-	successCommit(c)
+	//successCommit(c)
 	return NewResult(c, &Response{
 		Status: fiber.StatusOK,
 		Result: &Result{
@@ -127,7 +126,6 @@ func SignatureInvalidResult(c *fiber.Ctx, result *Result) error {
 }
 
 func NewResult(c *fiber.Ctx, response *Response) error {
-	logger.Info.Println(response.Result)
 	return c.Status(response.Status).JSON(response.Result)
 }
 

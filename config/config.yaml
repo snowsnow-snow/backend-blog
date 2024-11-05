@@ -1,7 +1,7 @@
 db:
   type: sqlite
   sqlite3:
-    path:  /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/SQLite/my-blog
+    path: /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/SQLite/my-blog
   mysql:
     host: 127.0.0.1
     port: 13307
@@ -9,7 +9,7 @@ db:
     passwd: 2022.mysql
     database: my_blog
 log:
-  name: app
+  name: middleware
   path: /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/backend-blog/logs
   # 单位：MB
   maxSize: 10
