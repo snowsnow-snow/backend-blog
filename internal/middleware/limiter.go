@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"time"
 )
 
 // LimiterMiddleware 创建一个每五秒最多30次请求的限流器

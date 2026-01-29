@@ -2,198 +2,180 @@ package utility
 
 import (
 	"backend-blog/config"
-	"backend-blog/internal/logger"
-	"backend-blog/internal/model/entity"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"image"
 	"os"
 	"os/exec"
-	"reflect"
+	"strconv"
 	"strings"
 )
+
+// ExifData represents the extracted metadata from an image.
+type ExifData struct {
+	Make                 string             `json:"make"`
+	Model                string             `json:"model"`
+	Width                int                `json:"width"`
+	Height               int                `json:"height"`
+	ISO                  int                `json:"iso"`
+	FNumber              float64            `json:"f_number"`
+	ExposureTime         string             `json:"exposure_time"`
+	FocalLength          string             `json:"focal_length"`
+	LensModel            string             `json:"lens_model"`
+	Software             string             `json:"software"`
+	DateTime             string             `json:"date_time"`
+	ExposureBias         string             `json:"exposure_bias,omitempty"`
+	FilmSimulation       string             `json:"film_simulation,omitempty"`
+	DynamicRange         string             `json:"dynamic_range,omitempty"`
+	WhiteBalance         string             `json:"white_balance,omitempty"`
+	WhiteBalanceFineTune string             `json:"white_balance_fine_tune,omitempty"`
+	Sharpness            string             `json:"sharpness,omitempty"`
+	NoiseReduction       string             `json:"noise_reduction,omitempty"`
+	ShadowTone           string             `json:"shadow_tone,omitempty"`
+	Saturation           string             `json:"saturation,omitempty"`
+	ColorChromeFXBlue    string             `json:"color_chrome_fx_blue,omitempty"`
+	ColorChromeEffect    string             `json:"color_chrome_effect,omitempty"`
+	GrainEffectRoughness string             `json:"grain_effect_roughness,omitempty"`
+	HighlightTone        string             `json:"highlight_tone,omitempty"`
+	LivePhotosId         string             `json:"live_photos_id,omitempty"`
+	GPS                  map[string]float64 `json:"gps,omitempty"`
+	Raw                  []byte             `json:"-"` // Raw JSON from exiftool
+}
 
 type Exiftool struct {
 }
 
-func (r *Exiftool) ReadExif(path, fileName, extension string) *entity.BlogImage {
-	fullPath := config.GlobalConfig.File.Path.System + path + Separator + fileName + Point + extension
-	// 打开文件
-	file, err := os.Open(fullPath)
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			logger.Error.Println("read exif close file error", err)
-		}
-	}(file)
-	if err != nil {
-		logger.Error.Println("open file error", err)
-		return nil
+// ReadExif calls the exiftool CLI to read metadata from the given image path and returns an ExifData struct.
+func (r *Exiftool) ReadExif(fullPath string) (*ExifData, error) {
+	// 获取 exiftool 路径，如果配置中没有则默认使用系统路径中的 exiftool
+	exifToolPath := config.GlobalConfig.ExifTool.Path
+	var binPath string
+	if exifToolPath == "" {
+		binPath = "exiftool"
+	} else {
+		binPath = filepathJoin(exifToolPath, "exiftool")
 	}
-	var imgInfo entity.BlogImage
-	logger.Info.Printf("ExifTool %s\n", config.GlobalConfig.ExifTool.Path+Separator+"exiftool")
-	// 调用 exiftool 并读取图像的所有元数据
-	cmd := exec.Command(config.GlobalConfig.ExifTool.Path+Separator+"exiftool", "-j", fullPath)
+
+	// 调用 exiftool 并读取图像的所有元数据为 JSON
+	cmd := exec.Command(binPath, "-j", fullPath)
+
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		logger.Error.Printf("cmd run error %s\n", err)
-		return nil
+		return nil, fmt.Errorf("exiftool execution failed: %w", err)
 	}
+
 	// 解析 JSON 格式的输出
 	var exifData []map[string]interface{}
 	if err := json.Unmarshal(out.Bytes(), &exifData); err != nil {
-		logger.Error.Printf("unmarshal error %s\n", err)
+		return nil, fmt.Errorf("failed to unmarshal exiftool output: %w", err)
 	}
+
 	if len(exifData) == 0 {
-		return nil
+		return nil, fmt.Errorf("no metadata found in image")
 	}
+
 	data := exifData[0]
-	err = mapstructure.Decode(data, &imgInfo)
-	handleSpecialParameters(&imgInfo, data)
-	if err != nil {
-		logger.Error.Printf("%s %s\n", fileName, err)
-	}
-	err = latitudeOrLongitudeStrToCoordinates(&imgInfo, data)
-	if err != nil {
-		logger.Error.Printf("%s %s\n", fileName, err)
-	}
-	rotate, angle, err := setOrientation(&imgInfo, data)
-	if err != nil {
-		logger.Error.Printf("%s %s\n", fileName, err)
-	}
-	setSoftware(&imgInfo, data)
-	file, err = os.Open(fullPath)
-	if err != nil {
-		logger.Error.Println("open file error", err)
-		return &imgInfo
-	}
-	// 压缩图片
-	compressPaths, err := CompressImage(path, fileName, extension, file)
-	if err != nil {
-		logger.Error.Printf("%s compress err. %s \n", fileName, err)
-		return &imgInfo
+	res := &ExifData{
+		Raw: out.Bytes(),
 	}
 
-	err = RotatePicture(rotate, angle, compressPaths...)
-	if err != nil {
-		logger.Error.Printf("%s rotate picture err %s \n", fileName, err)
-		return &imgInfo
+	// 映射基础字段
+	res.Make = r.toString(data["Make"])
+	res.Model = r.toString(data["Model"])
+	res.Width = r.toInt(data["ImageWidth"])
+	if res.Width == 0 {
+		res.Width = r.toInt(data["ExifImageWidth"])
+	}
+	res.Height = r.toInt(data["ImageHeight"])
+	if res.Height == 0 {
+		res.Height = r.toInt(data["ExifImageHeight"])
 	}
 
-	if extension == "heic" {
-		err = JpgToWebp(config.GlobalConfig.File.Path.System+path+Separator+fileName+Point+"jpg",
-			config.GlobalConfig.File.Path.System+path+Separator+fileName+Point+"webp",
-			imgInfo.ImageWidth,
-			imgInfo.ImageHeight)
-	} else {
-		err = JpgToWebp(fullPath,
-			config.GlobalConfig.File.Path.System+path+Separator+fileName+Point+"webp",
-			imgInfo.ImageWidth,
-			imgInfo.ImageHeight)
-	}
-	if err != nil {
-		logger.Error.Printf("%s jpg to webp err %s \n", fileName, err)
-		return &imgInfo
-	}
-	return &imgInfo
-}
+	res.ISO = r.toInt(data["ISO"])
+	res.FNumber = r.toFloat64(data["FNumber"])
+	res.ExposureTime = r.toString(data["ExposureTime"])
+	res.ExposureBias = r.toString(data["ExposureCompensation"])
+	res.FocalLength = r.toString(data["FocalLength"])
+	res.LensModel = r.toString(data["LensModel"])
+	res.Software = r.toString(data["Software"])
+	res.DateTime = r.toString(data["DateTimeOriginal"])
 
-func (r *Exiftool) ReadFujiInfo(imgInfo entity.BlogImage, exifData map[string]interface{}) {
-}
-func handleSpecialParameters(imgInfo *entity.BlogImage, exifData map[string]interface{}) {
-	if imgInfo.ExposureTime == "" {
-		if temp := exifData["ExposureTime"]; temp != nil {
-			imgInfo.ExposureTime = fmt.Sprint(temp)
+	// 富士胶片模拟及详细参数处理
+	if strings.Contains(strings.ToUpper(res.Make), "FUJIFILM") {
+		// 富士通常将胶片模拟存储在 FilmMode 或 FilmSimulation 中
+		if val, ok := data["FilmMode"]; ok {
+			res.FilmSimulation = r.toString(val)
+		} else if val, ok := data["FilmSimulation"]; ok {
+			res.FilmSimulation = r.toString(val)
+		}
+		res.DynamicRange = r.toString(data["DynamicRange"])
+		res.WhiteBalance = r.toString(data["WhiteBalance"])
+		res.WhiteBalanceFineTune = r.toString(data["WhiteBalanceFineTune"])
+		res.Sharpness = r.toString(data["Sharpness"])
+		res.NoiseReduction = r.toString(data["NoiseReduction"])
+		res.ShadowTone = r.toString(data["ShadowTone"])
+		res.Saturation = r.toString(data["Saturation"])
+		res.ColorChromeFXBlue = r.toString(data["ColorChromeFXBlue"])
+		res.ColorChromeEffect = r.toString(data["ColorChromeEffect"])
+		res.GrainEffectRoughness = r.toString(data["GrainEffectRoughness"])
+		res.HighlightTone = r.toString(data["HighlightTone"])
+		res.LivePhotosId = r.toString(data["LivePhotosId"])
+	}
+
+	// GPS 处理
+	if lat, ok := data["GPSLatitude"]; ok {
+		if lng, ok := data["GPSLongitude"]; ok {
+			res.GPS = map[string]float64{
+				"lat": r.toFloat64(lat),
+				"lng": r.toFloat64(lng),
+			}
 		}
 	}
-	if imgInfo.ShutterSpeedValue == "" {
-		if temp := exifData["ShutterSpeedValue"]; temp != nil {
-			imgInfo.ShutterSpeedValue = fmt.Sprint(temp)
-		}
-	}
-	if imgInfo.FocalLength != "" {
-		imgInfo.FocalLength = strings.ReplaceAll(imgInfo.FocalLength, " ", "")
-		imgInfo.FocalLength = strings.ReplaceAll(imgInfo.FocalLength, ".0", "")
-	}
-	if imgInfo.FocalLengthIn35mmFormat != "" {
-		imgInfo.FocalLengthIn35mmFormat = strings.ReplaceAll(imgInfo.FocalLengthIn35mmFormat, " ", "")
-		imgInfo.FocalLengthIn35mmFormat = strings.ReplaceAll(imgInfo.FocalLengthIn35mmFormat, ".0", "")
-	}
-}
-func setWidthANdHeightDimensionByBounds(imgInfo *entity.BlogImage, file *os.File) {
-	img, _, err := image.Decode(file)
-	if err != nil {
-		logger.Warn.Println(err.Error())
-		return
-	}
-	bounds := img.Bounds()
-	imgInfo.ImageWidth = bounds.Dx()
-	imgInfo.ImageHeight = bounds.Dy()
-}
-func setOrientation(imgInfo *entity.BlogImage, exifData map[string]interface{}) (bool, int, error) {
-	orientation := exifData["Orientation"]
-	if orientation == nil {
-		return false, 0, nil
-	}
-	orientationStr, _ := orientation.(string)
-	if strings.Contains(orientationStr, "Rotate") {
-		//err := RotatePicture90(fullPath)
-		//if err != nil {
-		//	return true, err
-		//}
-		oldWidth := imgInfo.ImageWidth
-		imgInfo.ImageWidth = imgInfo.ImageHeight
-		imgInfo.ImageHeight = oldWidth
-		fromString := getNumbersFromString(orientationStr)
-		return true, int(fromString[0]), nil
-	}
-	return false, 0, nil
+
+	return res, nil
 }
 
-func setSoftware(imgInfo *entity.BlogImage, exifData map[string]interface{}) {
-	software := exifData["Software"]
-	if software == nil {
-		return
+func (r *Exiftool) toString(v interface{}) string {
+	if v == nil {
+		return ""
 	}
-	valType := reflect.TypeOf(software)
-	if valType.Kind() == reflect.String {
-		imgInfo.Software = software.(string)
-		return
-	}
-	imgInfo.Software = fmt.Sprintf("%f", software)
-	for strings.HasSuffix(imgInfo.Software, "0") {
-		imgInfo.Software = strings.TrimSuffix(imgInfo.Software, "0")
-	}
-	if strings.HasSuffix(imgInfo.Software, ".") {
-		imgInfo.Software = strings.TrimSuffix(imgInfo.Software, ".")
-	}
-	if imgInfo.Make == "Apple" {
-		imgInfo.Software = "iOS " + imgInfo.Software
-	}
+	return strings.TrimSpace(fmt.Sprint(v))
 }
 
-func latitudeOrLongitudeStrToCoordinates(imgInfo *entity.BlogImage, exifData map[string]interface{}) error {
-	gpsLongitude := fmt.Sprint(exifData["GPSLongitude"])
-	gpsLatitude := fmt.Sprint(exifData["GPSLatitude"])
-	if (gpsLongitude == "" || gpsLatitude == "") || (gpsLongitude == "<nil>" || gpsLatitude == "<nil>") {
-		return errors.New("gpsLongitude or gpsLatitude is empty")
+func (r *Exiftool) toInt(v interface{}) int {
+	if v == nil {
+		return 0
 	}
-	gpsLongitudeArray := getNumbersFromString(gpsLongitude)
-	gpsLatitudeArray := getNumbersFromString(gpsLatitude)
-	finalLongitude, err := dmsToDecimal(gpsLongitudeArray[0], gpsLongitudeArray[1], gpsLongitudeArray[2], string(gpsLongitude[len(gpsLongitude)-1]))
-	if err != nil {
-		return errors.New("get final longitude error")
+	switch val := v.(type) {
+	case float64:
+		return int(val)
+	case string:
+		// Handle "3000" or other numeric strings
+		i, _ := strconv.Atoi(val)
+		return i
+	case int:
+		return val
 	}
-	finalLatitude, err := dmsToDecimal(gpsLatitudeArray[0], gpsLatitudeArray[1], gpsLatitudeArray[2], string(gpsLatitude[len(gpsLatitude)-1]))
-	if err != nil {
-		return errors.New("get final longitude error")
-	}
+	return 0
+}
 
-	imgInfo.LongitudeCoordinate = formatFloat(finalLongitude, 5)
-	imgInfo.LatitudeCoordinate = formatFloat(finalLatitude, 5)
-	return nil
+func (r *Exiftool) toFloat64(v interface{}) float64 {
+	if v == nil {
+		return 0
+	}
+	switch val := v.(type) {
+	case float64:
+		return val
+	case string:
+		f, _ := strconv.ParseFloat(val, 64)
+		return f
+	case int:
+		return float64(val)
+	}
+	return 0
+}
+
+func filepathJoin(elem ...string) string {
+	return strings.Join(elem, string(os.PathSeparator))
 }

@@ -1,0 +1,280 @@
+{
+    "project_id": "my-blog-backend",
+    "name": "My Blog Backend",
+    "intro": "Backend API for My Blog Project",
+    "global": {
+        "envs": [
+            {
+                "env_id": "default_env",
+                "name": "Local Dev",
+                "is_private": -1,
+                "sort": 0,
+                "server_list": [
+                    {
+                        "server_id": "default_server",
+                        "name": "Localhost",
+                        "sort": 0,
+                        "uri": "http://localhost:8080"
+                    }
+                ],
+                "env_var_list": {
+                    "base_url": {
+                        "value": "http://localhost:8080",
+                        "description": "API Base URL"
+                    },
+                    "token": {
+                        "value": "",
+                        "description": "JWT Token"
+                    }
+                }
+            }
+        ],
+        "servers": [
+            {
+                "server_id": "default_server",
+                "name": "Localhost",
+                "sort": 1000
+            }
+        ],
+        "global_vars": {},
+        "global_param": {
+            "header": {
+                "parameter": [
+                    {
+                        "param_id": "global_auth_header",
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}",
+                        "not_null": -1,
+                        "description": "Global Auth Token",
+                        "field_type": "string",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "apis": [
+        {
+            "target_id": "folder_auth",
+            "project_id": "my-blog-backend",
+            "parent_id": "0",
+            "target_type": "folder",
+            "name": "Auth",
+            "sort": 10
+        },
+        {
+            "target_id": "api_register",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_auth",
+            "target_type": "api",
+            "name": "Register",
+            "method": "POST",
+            "url": "/blog/register",
+            "sort": 10,
+            "request": {
+                "body": {
+                    "mode": "json",
+                    "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
+                }
+            }
+        },
+        {
+            "target_id": "api_login",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_auth",
+            "target_type": "api",
+            "name": "Login",
+            "method": "POST",
+            "url": "/blog/login",
+            "sort": 20,
+            "request": {
+                "body": {
+                    "mode": "json",
+                    "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
+                }
+            },
+            "response": {
+                "success": {
+                    "expect": {
+                        "is_default": 1
+                    }
+                }
+            }
+        },
+        {
+            "target_id": "api_reset_password",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_auth",
+            "target_type": "api",
+            "name": "Reset Password",
+            "method": "POST",
+            "url": "/blog/api/reset-password",
+            "sort": 30,
+            "request": {
+                "body": {
+                    "mode": "json",
+                    "raw": "{\n    \"oldPassword\": \"password123\",\n    \"newPassword\": \"newpassword123\"\n}"
+                }
+            }
+        },
+        {
+            "target_id": "folder_posts_public",
+            "project_id": "my-blog-backend",
+            "parent_id": "0",
+            "target_type": "folder",
+            "name": "Posts (Public)",
+            "sort": 20
+        },
+        {
+            "target_id": "api_list_posts_public",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_public",
+            "target_type": "api",
+            "name": "List Posts",
+            "method": "GET",
+            "url": "/blog/posts",
+            "sort": 10,
+            "request": {
+                "query": {
+                    "parameter": [
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "pageSize",
+                            "value": "10"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "target_id": "api_get_post_public",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_public",
+            "target_type": "api",
+            "name": "Get Post",
+            "method": "GET",
+            "url": "/blog/posts/1",
+            "sort": 20
+        },
+        {
+            "target_id": "api_get_media_public",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_public",
+            "target_type": "api",
+            "name": "Get Post Media",
+            "method": "GET",
+            "url": "/blog/posts/1/media",
+            "sort": 30
+        },
+        {
+            "target_id": "folder_posts_admin",
+            "project_id": "my-blog-backend",
+            "parent_id": "0",
+            "target_type": "folder",
+            "name": "Posts (Admin)",
+            "sort": 30
+        },
+        {
+            "target_id": "api_create_post",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_admin",
+            "target_type": "api",
+            "name": "Create Post",
+            "method": "POST",
+            "url": "/blog/api/posts",
+            "sort": 10,
+            "request": {
+                "body": {
+                    "mode": "json",
+                    "raw": "{\n  \"postType\": \"article\",\n  \"title\": \"My New Post\",\n  \"slug\": \"my-new-post\",\n  \"summary\": \"Summary\",\n  \"content\": \"# Content\",\n  \"status\": \"published\",\n  \"mediaAssets\": []\n}"
+                }
+            }
+        },
+        {
+            "target_id": "api_update_post",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_admin",
+            "target_type": "api",
+            "name": "Update Post",
+            "method": "PUT",
+            "url": "/blog/api/posts/1",
+            "sort": 20,
+            "request": {
+                "body": {
+                    "mode": "json",
+                    "raw": "{\n  \"title\": \"Updated Title\",\n  \"content\": \"Updated Content\"\n}"
+                }
+            }
+        },
+        {
+            "target_id": "api_list_posts_admin",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_admin",
+            "target_type": "api",
+            "name": "List Posts (Full Info)",
+            "method": "GET",
+            "url": "/blog/api/posts",
+            "sort": 30
+        },
+        {
+            "target_id": "api_get_post_admin",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_admin",
+            "target_type": "api",
+            "name": "Get Post (Full Info)",
+            "method": "GET",
+            "url": "/blog/api/posts/1",
+            "sort": 40
+        },
+        {
+            "target_id": "api_delete_post",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_posts_admin",
+            "target_type": "api",
+            "name": "Delete Post",
+            "method": "DELETE",
+            "url": "/blog/api/posts/1",
+            "sort": 50
+        },
+        {
+            "target_id": "folder_media",
+            "project_id": "my-blog-backend",
+            "parent_id": "0",
+            "target_type": "folder",
+            "name": "Media",
+            "sort": 40
+        },
+        {
+            "target_id": "api_upload_media",
+            "project_id": "my-blog-backend",
+            "parent_id": "folder_media",
+            "target_type": "api",
+            "name": "Upload Media",
+            "method": "POST",
+            "url": "/blog/api/upload",
+            "sort": 10,
+            "request": {
+                "body": {
+                    "mode": "form-data",
+                    "parameter": [
+                        {
+                            "key": "file",
+                            "field_type": "file",
+                            "description": "Upload File"
+                        },
+                        {
+                            "key": "postId",
+                            "value": "1",
+                            "description": "Optional Post ID"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

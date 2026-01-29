@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: my-blog-backend:latest
+    container_name: my-blog-backend
+    volumes:
+      # Data persistence
+      - ./data:/var/db/backend-blog
+      # Uploaded files (shared with frontend if needed, but primarily for processing)
+      - ./uploads:/home/file/public
+      # Logs
+      - ./logs:/var/log/go/backend-blog
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: my-blog-frontend:latest
+    container_name: my-blog-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      # Shared uploads directory if Nginx needs to serve them directly (optional)
+      - ./uploads:/usr/share/nginx/html/uploads
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always

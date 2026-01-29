@@ -16,4 +16,4 @@ file:
     # 资源路径
     resource: /file/public
 exifTool:
-  path: /usr/bin/backend-blog/Image-ExifTool-12.96
+  path: ""

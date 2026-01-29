@@ -44,3 +44,6 @@ my-blog.db
 /logs
 /SQLite
 /image-ExifTool-12.86
+*.pem
+*.db
+*.tar

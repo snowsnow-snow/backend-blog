@@ -18,10 +18,10 @@ docker run -d \
 
 
 curl --request GET \
-  --url http://snowsnowsnow.life:800/api/content/list \
+  --url http://snowsnowsnow.life:800/api/post/list \
   --header 'Accept: */*' \
   --header 'Accept-Encoding: gzip, deflate, br' \
   --header 'Connection: keep-alive' \
   --header 'User-Agent: PostmanRuntime-ApipostRuntime/1.1.0' \
-  --header 'content-type: multipart/form-data' \
+  --header 'post-type: multipart/form-data' \
   --form title=1

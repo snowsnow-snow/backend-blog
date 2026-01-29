@@ -3,11 +3,11 @@ package entity
 // User 用户表信息
 type User struct {
 	BaseInfo
-	Username string
-	Password string
-	Salt     string
-	Birthday string
-	Avatar   string
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Salt     string `json:"salt"`
+	Birthday string `json:"birthday"`
+	Avatar   string `json:"avatar"`
 	//Phone     int64  `gorm:"DEFAULT:0"`
 	//Email     string `gorm:"type:varchar(20);unique_index;"`
 }

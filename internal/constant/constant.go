@@ -4,7 +4,7 @@ var (
 	Table = tableNames{
 		"user",
 		"file",
-		"content",
+		"post",
 		"image",
 		"video",
 		"markdown",
@@ -27,7 +27,7 @@ var (
 type tableNames struct {
 	User         string
 	File         string
-	BlogContent  string
+	Post         string
 	BlogImage    string
 	BlogVideo    string
 	BlogMarkdown string

@@ -1,9 +1,9 @@
 server:
-  port: 800
+  port: 53123
 db:
   type: sqlite
   sqlite3:
-    path: /Users/snowsnowsnow/MyBlog/SQLite/my-blog-dev
+    path: /Users/snowsnowsnow/MyBlog/SQLite/my-blog-go
 log:
   name: middleware
   path: /Users/snowsnowsnow/MyBlog/logs
@@ -16,4 +16,35 @@ file:
     # 资源路径
     resource: /file/public
 exifTool:
-  path: /Users/snowsnowsnow/MyBlog/image-ExifTool-12.86
+  path: /Users/snowsnowsnow/Library/CloudStorage/OneDrive-个人/Code/my-blog/Java/Apple-Arm64/image-ExifTool-12.86
+jwt:
+  expire_hour: 24
+  private_key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCkUD+18rn87Cch
+    4tDcZUXZtRuyZ+xH5KHhCYtY9tFxLlndUj/CmyOzWyOwnLP9tP/31eGNbp6lfhl0
+    bBhXhYuieGXcBnCg1klO9mOO8sfcWtc/a6wwFSIt8J4LOJwAwr6dNyv02khsZIFj
+    jn+q9D36wET4uNfFS6w6Py/XpYEeKokFT+/vX+czj7TqDyWuXHdYtYDmJti0QkDx
+    uuWTq8N5QpJVYY+tV3O/ap+vQCRN3VanREDTrqb7XmzQaBRERmBxEyjAWQRICUxZ
+    ZDkqN0LlqOztrjxQvE+Yh9tRkmetP8Vbp1c/5fDr390VCjOGw1uUrN2jsIu/4G/B
+    Rk7hr8yvAgMBAAECggEAHvrkcEVCDO5nmGt/7rYHe/s6LCKM+achYGEgzVbH+XuA
+    RQrfa609h3ENIx0AkLrCMjO40aZEMja6zOkek83hnHHv3pK2RJTygHlTHx4mUaUt
+    BU+jSPOLHLdLzRjQzRHqx5Ch8IoBcrJmdONmrdBcKT18I5sST6grYlYMiq+xTwLv
+    uErnoZssKP1RhFelkhPJEazIjlT3jbsYceZ7RaxOqKBctiqYeW4LJGnIRzv47ius
+    lhqusoIYF6L0wECnYHZNco9OASXvP2itUEQgyrWcqdLdvpR0ukyKxWlPyQxm6pT0
+    iAfi1Jv/nHvc02xYgsZ6G2OqQ194JiNph+WsZk1O8QKBgQDOiS9FtfmaPiYvlsE7
+    rOxQ5G00jtK/FHs7NboJcHVGjOflqdYjD5x+3A4dlXsXZlt6n7YiaztAkevpQrzP
+    aI14PGKsVTzLsC2x3kIrejv3OJgTMd2MUAYB8gwymnCOH4ifFkswjBc2bWCHqZ91
+    i31de0qJfDYIzMnoI/qY1xhHPwKBgQDLqmNQ2OO922614nthlZgnQLAMYfzEM0u0
+    x44Zp+3/7xQCYRQONvrUBSoBJwjIsr9DCGjMuVZp6I+FbI2zskMeHdJw87mV6NsU
+    tQJv1MnyxvEZWVGD2Qgodne9Qo81rQCE9k1pzrvhjDFDLpX4pD+VNR6hSTPPukdG
+    e0MwnnYOkQKBgQC82mglYC5qQaX9IeZzQL2dgiHxSx+dpYbBL3F7LB+wcSuir1el
+    G6NHxMQLfSHe1bOUPvH2KwM1GbkTw/iN1tZ1ORIo7o/22JQP7mGnC9BFULSN6Kzi
+    nlG/+an5o4qECoWMooACVjbrh7wakJnEi9YIYrJXYQKvrUJ6SFve4d/LVQKBgQCb
+    0GiZIsXhq65gkrwoJUW5yiCl6JV0GXZzATTy5eoMowEg7NpmIaP2b1j6dr2epjnz
+    c8yRy72T2ytqPWmPr/LvaItmhOBYE0UA65bIrfguuAsehJn7kCBQrInhDrn3q7q4
+    /qKtL0/IN/Q8XLi5+Bb49SHQ7Ospom8DOixmVuUlMQKBgBzWJFjULD8k6tXXQwGx
+    Nf+5xkE3y0Jn+bIHcDCGoEeM2YA1n5q75fq74zflEdcTSyHR4bC9XUVxALTbThHG
+    Ayc5/xPWcGSgDf+FgidZ5KFHw0iMTgDmcmRyfDTi4aKDkzbkhQ/IIIZnWoPCc8/g
+    nUWvIVekVWcwDh7pMSMO4Ae4
+    -----END PRIVATE KEY-----

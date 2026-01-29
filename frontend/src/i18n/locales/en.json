@@ -1,0 +1,123 @@
+{
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "newPost": "New Post",
+        "categories": "Categories",
+        "logout": "Logout",
+        "login": "Login",
+        "signIn": "Sign In",
+        "back": "Back to all stories",
+        "goHome": "Go back home"
+    },
+    "login": {
+        "title": "Sign In",
+        "subtitle": "Enter your credentials to manage your blog.",
+        "username": "Username",
+        "password": "Password",
+        "signingIn": "Signing in...",
+        "continue": "Continue",
+        "error": "Invalid username or password."
+    },
+    "common": {
+        "siteTitle": "PERSONAL BLOG",
+        "footerRights": "All Rights Reserved.",
+        "save": "Save",
+        "retry": "Retry",
+        "saving": "Saving...",
+        "delete": "Delete",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "status": "Status",
+        "title": "Title",
+        "type": "Type",
+        "date": "Date",
+        "actions": "Actions",
+        "draft": "Draft",
+        "published": "Published",
+        "summary": "Summary",
+        "content": "Content",
+        "category": "Category",
+        "name": "Name",
+        "description": "Description",
+        "add": "Add",
+        "search": "Search",
+        "noSelection": "None",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "settings": "Settings",
+        "language": "Language"
+    },
+    "home": {
+        "subtitle": "Developer, Creator, and Minimalist.",
+        "noPosts": "No posts found."
+    },
+    "post": {
+        "notFound": "Post not found."
+    },
+    "editor": {
+        "titlePlaceholder": "Enter a title...",
+        "contentPlaceholder": "Write your story in Markdown...",
+        "summaryPlaceholder": "A short description...",
+        "uploadPhotos": "Upload photos",
+        "uploadHint": "JPG, PNG, WEBP up to 10MB",
+        "success": "Post saved successfully!",
+        "fail": "Failed to save post.",
+        "uploadSuccess": "File uploaded!",
+        "uploadFail": "Failed to upload file.",
+        "titleRequired": "Please enter a title.",
+        "uploadImage": "Upload Image",
+        "copyMarkdown": "Copy Markdown",
+        "uploadedImages": "Session Uploads",
+        "editPost": "Edit Post",
+        "newPost": "New Post",
+        "uploading": "Uploading...",
+        "markdownCopied": "Markdown copied",
+        "article": "Article",
+        "gallery": "Gallery",
+        "postType": "Post Type"
+    },
+    "exif": {
+        "title": "EXIF Details",
+        "mobileTitle": "Photo Details",
+        "sections": {
+            "exposure": "Exposure",
+            "equipment": "Equipment",
+            "processing": "Processing"
+        },
+        "labels": {
+            "iso": "ISO",
+            "aperture": "Aperture",
+            "shutter": "Shutter",
+            "expBias": "Exp. Bias",
+            "camera": "Camera",
+            "lens": "Lens",
+            "focalLength": "Focal Length",
+            "filmSimulation": "Simulation",
+            "whiteBalance": "White Balance",
+            "whiteBalanceFineTune": "WB Color Edit",
+            "dynamicRange": "Dynamic Range",
+            "sharpness": "Sharpness",
+            "noiseReduction": "Noise Reduction",
+            "shadowTone": "Shadow Tone",
+            "highlightTone": "Highlight Tone",
+            "saturation": "Saturation",
+            "colorChromeEffect": "Color Chrome",
+            "colorChromeFXBlue": "Chrome FX Blue",
+            "grainEffectRoughness": "Grain Effect"
+        },
+        "values": {
+            "whiteBalance": {
+                "Auto": "Auto",
+                "Daylight": "Daylight",
+                "Cloudy": "Cloudy",
+                "Incandescent": "Incandescent",
+                "Fluorescent": "Fluorescent",
+                "Underwater Auto": "Underwater Auto",
+                "Standard": "Standard"
+            }
+        }
+    }
+}
